@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Secrets / local env
+.env
+.env.*
+*.secret
+
+# Runtime artifacts
+context/
+reports/
+logs/
+*.log
+
+# Local agent state
+.hermes/
+.hermes_tmp/
+.claude/
+.openclaw/
+.codex/
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/

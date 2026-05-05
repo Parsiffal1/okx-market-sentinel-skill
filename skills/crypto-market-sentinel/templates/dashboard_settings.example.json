@@ -1,0 +1,10 @@
+{
+  "backend_refresh_minutes": 30,
+  "frontend_poll_seconds": 10,
+  "theme": "dark",
+  "compact_mode": false,
+  "semantic_compass_focus": "",
+  "semantic_compass_last_brief": "",
+  "semantic_compass_last_updated_at": "",
+  "semantic_compass_refresh_status": "idle"
+}

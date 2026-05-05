@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>Crypto-Agent Phase3 完整流程图与评分标准</title>
+<style>
+  @page { size: A4; margin: 18mm 14mm 18mm 14mm; }
+  body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; background:#071018; color:#e5eef8; margin:0; }
+  .wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding: 24px 28px 60px; box-sizing:border-box; }
+  h1,h2,h3 { margin:0 0 10px; }
+  h1 { font-size: 34px; line-height:1.2; }
+  h2 { font-size: 24px; margin-top: 30px; padding-bottom: 8px; border-bottom: 1px solid #21354b; }
+  h3 { font-size: 18px; color:#dbeafe; }
+  p,li,td,th { font-size: 14px; line-height: 1.6; }
+  .muted { color:#96acc4; }
+  .hero { background:linear-gradient(135deg,#0f172a,#13263f); border:1px solid #27415d; border-radius:20px; padding:24px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .metric { background:#0d1a2a; border:1px solid #223851; border-radius:16px; padding:14px 16px; }
+  .metric .label { color:#8fb3d9; font-size:13px; margin-bottom:4px; }
+  .metric .value { font-size:22px; font-weight:700; color:#f8fbff; }
+  .diagram { background:#08121d; border:1px solid #1d334a; border-radius:20px; padding:12px; margin-top:16px; }
+  .diagram svg { width:100%; height:auto; display:block; }
+  table { width:100%; border-collapse:collapse; margin-top:12px; }
+  th, td { border:1px solid #284057; padding:10px 12px; vertical-align:top; }
+  th { background:#102338; color:#dbeafe; text-align:left; }
+  td { background:#0b1826; }
+  .small td, .small th { font-size:13px; }
+  .source-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .source-card { break-inside: avoid; background:#0b1826; border:1px solid #223851; border-radius:18px; padding:16px; }
+  ul { margin: 6px 0 10px 20px; padding:0; }
+  .pill { display:inline-block; padding:4px 10px; border-radius:999px; background:#13263f; border:1px solid #31567b; color:#dbeafe; font-size:12px; margin-right:6px; margin-bottom:6px; }
+  .footer-note { margin-top:18px; padding:14px 16px; background:#111827; border-left:4px solid #60a5fa; border-radius:10px; }
+  .page-break { break-before: page; page-break-before: always; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>Crypto-Agent Phase 3（P3）完整流程图 / API 接口 / 评分标准 / Trigger 条件</h1>
+    <p class="muted">基于当前项目实际代码与 2026-04-24 实跑结果整理。项目根目录：<code>/root/work/crypto-agent</code>。关键字段保留英文以便和代码字段一一对应。</p>
+    <div style="margin-top:10px;">
+      <span class="pill">canonical command: python scripts/phase3_pipeline.py</span>
+      <span class="pill">builder: scripts/build_context_cache.py</span>
+      <span class="pill">trigger: scripts/build_triggers.py</span>
+      <span class="pill">notifier: scripts/run_phase3_notifier.py</span>
+    </div>
+    <div class="grid2" style="margin-top:18px;">
+      <div>
+        <p><b>文档目标</b></p>
+        <ul>
+          <li>给出 P3 从 source fetch 到 trigger / notifier 的完整闭环。</li>
+          <li>明确每个 source 调用了什么 API / CLI 接口、输出到哪里、如何进入语义聚合。</li>
+          <li>明确 <code>regime_bias</code> / <code>risk_state</code> 的实际评分逻辑。</li>
+          <li>明确 LLM 唤醒与 Phase4 priority 的真实触发条件。</li>
+        </ul>
+      </div>
+      <div>
+        <p><b>当前 live snapshot（来自本轮实跑）</b></p>
+        <ul>
+          <li>holdings: <b>MASK, ETH, BTC</b></li>
+          <li>regime_bias: <b>neutral</b></li>
+          <li>risk_state: <b>high</b></li>
+          <li>geo_risk: <b>high</b></li>
+          <li>event_window: <b>False</b></li>
+          <li>news_risk: <b>high</b></li>
+          <li>llm_wake_required: <b>False</b></li>
+          <li>phase4_priority_symbols: <b>MASK, ETH, BTC, KAT, LAB, STABLE, ZEC, SENT</b></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>1. P3 总流程图</h2>
+    <div class="diagram">
+<svg viewBox="0 0 1400 1080" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,3 L0,6 z" fill="#93c5fd"/>
+    </marker>
+  </defs>
+  <rect x="30" y="20" width="1340" height="1040" rx="24" fill="#07111f" stroke="#1f3b5a"/>
+  <text x="60" y="65" fill="#e5f0ff" font-size="28" font-weight="700">Phase 3 总流程（source → semantic aggregation → scoring → trigger → notifier）</text>
+  <rect x="60" y="110" width="240" height="110" rx="16" fill="#10263f" stroke="#60a5fa"/>
+  <text x="80" y="150" fill="#dbeafe" font-size="22" font-weight="700">1. Scheduler / Manual Run</text>
+  <text x="80" y="182" fill="#bfdbfe" font-size="16">canonical: python scripts/phase3_pipeline.py</text>
+  <text x="80" y="206" fill="#bfdbfe" font-size="16">parallel or --sequential</text>
+
+  <rect x="360" y="90" width="980" height="250" rx="20" fill="#0f1c2b" stroke="#29506f"/>
+  <text x="390" y="125" fill="#e5f0ff" font-size="24" font-weight="700">2. Source Fetchers</text>
+  <g font-size="16" fill="#d1fae5">
+    <rect x="390" y="150" width="180" height="70" rx="12" fill="#14382a" stroke="#34d399"/><text x="405" y="178">okx_positions</text><text x="405" y="201">live/demo positions</text>
+    <rect x="585" y="150" width="180" height="70" rx="12" fill="#14382a" stroke="#34d399"/><text x="600" y="178">blockbeats</text><text x="600" y="201">macro + market ctx</text>
+    <rect x="780" y="150" width="180" height="70" rx="12" fill="#14382a" stroke="#34d399"/><text x="795" y="178">cmc</text><text x="795" y="201">fear/greed + breadth</text>
+    <rect x="975" y="150" width="180" height="70" rx="12" fill="#14382a" stroke="#34d399"/><text x="990" y="178">moss_xsignal</text><text x="990" y="201">sentiment score</text>
+    <rect x="1170" y="150" width="140" height="70" rx="12" fill="#14382a" stroke="#34d399"/><text x="1185" y="178">jin10</text><text x="1185" y="201">flash/news/calendar</text>
+
+    <rect x="487" y="245" width="180" height="70" rx="12" fill="#14382a" stroke="#34d399"/><text x="502" y="273">okx_news</text><text x="502" y="296">holdings-aware news</text>
+    <rect x="682" y="245" width="180" height="70" rx="12" fill="#14382a" stroke="#34d399"/><text x="697" y="273">opennews</text><text x="697" y="296">global supplement</text>
+    <rect x="877" y="245" width="180" height="70" rx="12" fill="#14382a" stroke="#34d399"/><text x="892" y="273">opentwitter</text><text x="892" y="296">whitelist KOL heat</text>
+  </g>
+
+  <rect x="60" y="390" width="380" height="170" rx="18" fill="#24123a" stroke="#a78bfa"/>
+  <text x="85" y="428" fill="#f5f3ff" font-size="24" font-weight="700">3. Raw Cache Layer</text>
+  <text x="85" y="462" fill="#ddd6fe" font-size="16">context/raw/*.json</text>
+  <text x="85" y="492" fill="#ddd6fe" font-size="16">每个 source 各自落盘，保留 status / updated_at / raw data</text>
+  <text x="85" y="518" fill="#ddd6fe" font-size="16">失败时写 error cache，聚合层按 health / staleness 处理</text>
+
+  <rect x="500" y="390" width="390" height="170" rx="18" fill="#12283a" stroke="#22d3ee"/>
+  <text x="525" y="428" fill="#ecfeff" font-size="24" font-weight="700">4. build_context_cache.py</text>
+  <text x="525" y="462" fill="#cffafe" font-size="16">build_semantic_event_pool()</text>
+  <text x="525" y="488" fill="#cffafe" font-size="16">normalize_raw_event() → classify_event_domain() / event_subtype</text>
+  <text x="525" y="514" fill="#cffafe" font-size="16">news_event_state.json 用于 novelty=new/seen</text>
+  <text x="525" y="540" fill="#cffafe" font-size="16">写出 context/context_cache.json</text>
+
+  <rect x="950" y="390" width="360" height="170" rx="18" fill="#3a160f" stroke="#fb923c"/>
+  <text x="975" y="428" fill="#ffedd5" font-size="24" font-weight="700">5. Derived Business Views</text>
+  <text x="975" y="462" fill="#fed7aa" font-size="16">macro / crypto_news / social / holdings / market_context</text>
+  <text x="975" y="488" fill="#fed7aa" font-size="16">macro_context / security / signal_inputs</text>
+  <text x="975" y="514" fill="#fed7aa" font-size="16">summary_buckets: geo / macro_financial / us_equity_sentiment</text>
+
+  <rect x="180" y="640" width="300" height="150" rx="18" fill="#132c22" stroke="#34d399"/>
+  <text x="205" y="678" fill="#ecfdf5" font-size="24" font-weight="700">6. Market State Scoring</text>
+  <text x="205" y="712" fill="#d1fae5" font-size="16">classify_regime_bias()</text>
+  <text x="205" y="738" fill="#d1fae5" font-size="16">classify_risk_state()</text>
+  <text x="205" y="764" fill="#d1fae5" font-size="16">macro.regime = regime_bias (compat)</text>
+
+  <rect x="560" y="640" width="300" height="150" rx="18" fill="#3a1221" stroke="#fb7185"/>
+  <text x="585" y="678" fill="#fff1f2" font-size="24" font-weight="700">7. build_triggers.py</text>
+  <text x="585" y="712" fill="#ffe4e6" font-size="16">LLM wake / observe_only / Phase4 priority</text>
+  <text x="585" y="738" fill="#ffe4e6" font-size="16">输出 context/trigger_candidates.json</text>
+  <text x="585" y="764" fill="#ffe4e6" font-size="16">holdings first + strict wake policy</text>
+
+  <rect x="940" y="640" width="300" height="150" rx="18" fill="#1e293b" stroke="#94a3b8"/>
+  <text x="965" y="678" fill="#f8fafc" font-size="24" font-weight="700">8. run_phase3_notifier.py</text>
+  <text x="965" y="712" fill="#e2e8f0" font-size="16">HTML parse_mode Telegram message</text>
+  <text x="965" y="738" fill="#e2e8f0" font-size="16">当前状态、Trigger 判定、Phase4 列表、API health</text>
+  <text x="965" y="764" fill="#e2e8f0" font-size="16">不再发送 delta/history</text>
+
+  <rect x="420" y="860" width="560" height="120" rx="18" fill="#111827" stroke="#60a5fa"/>
+  <text x="450" y="900" fill="#f8fafc" font-size="24" font-weight="700">9. Final Artifacts</text>
+  <text x="450" y="934" fill="#dbeafe" font-size="16">context/context_cache.json · context/trigger_candidates.json · context/news_event_state.json · Telegram notifier</text>
+  <text x="450" y="960" fill="#dbeafe" font-size="16">Phase4 只吃 priority symbols，不负责唤醒 LLM</text>
+
+  <line x1="300" y1="165" x2="360" y2="165" stroke="#93c5fd" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="700" y1="340" x2="250" y2="390" stroke="#93c5fd" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="700" y1="340" x2="690" y2="390" stroke="#93c5fd" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="700" y1="340" x2="1130" y2="390" stroke="#93c5fd" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="440" y1="475" x2="500" y2="475" stroke="#93c5fd" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="890" y1="475" x2="950" y2="475" stroke="#93c5fd" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="695" y1="560" x2="330" y2="640" stroke="#93c5fd" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="695" y1="560" x2="710" y2="640" stroke="#93c5fd" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="695" y1="560" x2="1090" y2="640" stroke="#93c5fd" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="480" y1="715" x2="560" y2="715" stroke="#93c5fd" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="860" y1="715" x2="940" y2="715" stroke="#93c5fd" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="1090" y1="790" x2="900" y2="860" stroke="#93c5fd" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="710" y1="790" x2="700" y2="860" stroke="#93c5fd" stroke-width="3" marker-end="url(#arrow)"/>
+</svg>
+</div>
+  </section>
+
+  <section>
+    <h2>2. Source Layer：每个数据源具体调用什么 API / 接口</h2>
+    <div class="source-grid">
+<div class="source-card">
+  <h3>okx_positions</h3>
+  <p><b>角色：</b>持仓源 / holdings</p>
+  <p><b>调用接口 / 命令：</b></p>
+  <ul><li>CLI: okx --profile live account positions --json</li><li>CLI: okx --profile demo account positions --json</li></ul>
+  <p><b>关键输出：</b></p>
+  <ul><li>context/raw/okx_positions_cache.json</li><li>holdings.has_positions / prioritized_symbols / live_symbols / demo_symbols</li></ul>
+  <p><b>备注：</b>live 持仓优先，demo-only symbols 在 live 之后补位。</p>
+</div>
+
+<div class="source-card">
+  <h3>blockbeats</h3>
+  <p><b>角色：</b>macro + market_context + crypto_news</p>
+  <p><b>调用接口 / 命令：</b></p>
+  <ul><li>HTTP GET http://api-pro.theblockbeats.info/v1/newsflash/important?page=1&amp;size=20&amp;lang=cn</li><li>HTTP GET /v1/data/dxy?type=1W</li><li>HTTP GET /v1/data/us10y?type=1W</li><li>HTTP GET /v1/data/m2_supply?type=6M</li><li>HTTP GET /v1/data/btc_etf</li><li>HTTP GET /v1/data/stablecoin_marketcap</li><li>HTTP GET /v1/data/daily_tx</li><li>HTTP GET /v1/data/contract?dataType=1W</li><li>HTTP GET /v1/data/bottom_top_indicator</li></ul>
+  <p><b>关键输出：</b></p>
+  <ul><li>macro.usd_strength / us10y_pressure / m2_trend</li><li>market_context.btc_etf_flow / stablecoin_liquidity / onchain_tx_trend / contract_oi_environment / sentiment_indicator</li><li>blockbeats 原始 high_impact_events</li></ul>
+  <p><b>备注：</b>HTTP Header 使用 api-key: BLOCKBEATS_API_KEY。</p>
+</div>
+
+<div class="source-card">
+  <h3>cmc</h3>
+  <p><b>角色：</b>macro + market_context + social补充</p>
+  <p><b>调用接口 / 命令：</b></p>
+  <ul><li>GET https://pro-api.coinmarketcap.com/v1/key/info</li><li>GET /v1/global-metrics/quotes/latest?convert=USD</li><li>GET /v3/fear-and-greed/latest</li><li>GET /v1/altcoin-season-index/latest</li><li>GET /v1/cryptocurrency/listings/latest?start=1&amp;limit=20&amp;convert=USD</li><li>GET /v2/cryptocurrency/quotes/latest?symbol=BTC,ETH,SOL&amp;convert=USD</li><li>GET /v1/cryptocurrency/ohlcv/latest?symbol=BTC,ETH,SOL&amp;convert=USD</li><li>GET /v2/cryptocurrency/price-performance-stats/latest?symbol=BTC,ETH,SOL&amp;convert=USD</li><li>GET /v1/cryptocurrency/trending/latest?limit=10</li><li>GET /v1/cryptocurrency/trending/gainers-losers?start=1&amp;limit=10&amp;time_period=24h&amp;convert=USD</li><li>CLI filter: okx --profile live market instruments --instType SWAP/FUTURES --json</li></ul>
+  <p><b>关键输出：</b></p>
+  <ul><li>macro.fear_greed_classification / fear_greed_value / altcoin_season_classification / altcoin_season_value</li><li>market_context.market_breadth / large_cap_leadership</li><li>social.cmc_trending_symbols (经过 OKX tradable universe 过滤)</li></ul>
+  <p><b>备注：</b>HTTP Header 使用 X-CMC_PRO_API_KEY。</p>
+</div>
+
+<div class="source-card">
+  <h3>moss_xsignal</h3>
+  <p><b>角色：</b>macro + social_sentiment</p>
+  <p><b>调用接口 / 命令：</b></p>
+  <ul><li>GET https://ai.moss.site/api/v1/sentiment/global/list</li><li>GET https://ai.moss.site/api/v1/sentiment-edge/available-dates</li></ul>
+  <p><b>关键输出：</b></p>
+  <ul><li>macro.moss_sentiment_today / moss_sentiment_bias / moss_sentiment_date</li><li>social.moss_available_dates</li></ul>
+  <p><b>备注：</b>真实 JSON host 是 ai.moss.site，不是 moss.site 页面域名。</p>
+</div>
+
+<div class="source-card">
+  <h3>okx_news</h3>
+  <p><b>角色：</b>持仓优先 crypto_news</p>
+  <p><b>调用接口 / 命令：</b></p>
+  <ul><li>持仓模式: okx --profile live news latest --coins &lt;symbols&gt; --limit 20 --json</li><li>持仓模式: okx --profile live news by-coin --coins &lt;symbols&gt; --importance high --limit 20 --json</li><li>通用: okx --profile live news sentiment-rank --limit 10 --json</li><li>无持仓 fallback: news latest / news important / news sentiment-rank</li></ul>
+  <p><b>关键输出：</b></p>
+  <ul><li>crypto_news market_bias / news_risk / high_impact_events</li><li>holdings_mode / prioritized_symbols</li></ul>
+  <p><b>备注：</b>Phase3 唯一 approved 的 holdings-aware 新闻源。</p>
+</div>
+
+<div class="source-card">
+  <h3>opennews</h3>
+  <p><b>角色：</b>全球新闻补充 / crypto_news</p>
+  <p><b>调用接口 / 命令：</b></p>
+  <ul><li>POST https://ai.6551.io/open/news_search body={&quot;limit&quot;:20,&quot;page&quot;:1}</li><li>GET  https://ai.6551.io/open/news_type</li></ul>
+  <p><b>关键输出：</b></p>
+  <ul><li>news_risk / market_bias / high_impact_events(按 aiRating.score&gt;=80)</li><li>source_categories</li></ul>
+  <p><b>备注：</b>当前固定 broad payload，不按持仓做 symbol 搜索。</p>
+</div>
+
+<div class="source-card">
+  <h3>opentwitter</h3>
+  <p><b>角色：</b>白名单 KOL 社交热度 / social</p>
+  <p><b>调用接口 / 命令：</b></p>
+  <ul><li>POST https://ai.6551.io/open/twitter_user_tweets body={&quot;username&quot;:&lt;acct&gt;,&quot;maxResults&quot;:5,&quot;product&quot;:&quot;Latest&quot;,&quot;includeReplies&quot;:false,&quot;includeRetweets&quot;:false}</li><li>OKX tradable universe 过滤: okx --profile live market instruments --instType SWAP/FUTURES --json</li></ul>
+  <p><b>关键输出：</b></p>
+  <ul><li>social.watch_accounts / symbol_mentions / top_discussed_symbols / social_risk</li><li>weighted_heat = viewCount*1 + favoriteCount*20 + replyCount*30</li></ul>
+  <p><b>备注：</b>白名单来自 config/phase3_sources.yaml: roger73005305, thankUcrypto, xtony1314, wukong2021, jackli727。</p>
+</div>
+
+<div class="source-card">
+  <h3>jin10</h3>
+  <p><b>角色：</b>macro / geo / US-only event window</p>
+  <p><b>调用接口 / 命令：</b></p>
+  <ul><li>MCP streamable HTTP: https://mcp.jin10.com/mcp</li><li>Tool: list_flash(cursor?)</li><li>Tool: list_news(cursor?)</li><li>Tool: list_calendar({})</li></ul>
+  <p><b>关键输出：</b></p>
+  <ul><li>macro.geo_risk / event_window / event_pre_release / event_recent_release</li><li>Jin10 flash-first macro_summary samples</li></ul>
+  <p><b>备注：</b>IMPORTANT_COUNTRIES=(&quot;美国&quot;,)，事件窗口只看美国且 importance&gt;=3。</p>
+</div>
+</div>
+  </section>
+
+  <section class="page-break">
+    <h2>3. Context Builder 语义聚合流程图</h2>
+    <div class="diagram">
+<svg viewBox="0 0 1400 980" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L10,3 L0,6 z" fill="#c4b5fd"/></marker></defs>
+  <rect x="30" y="20" width="1340" height="940" rx="24" fill="#0b1020" stroke="#312e81"/>
+  <text x="60" y="60" fill="#eef2ff" font-size="28" font-weight="700">context builder 语义聚合流程</text>
+  <rect x="60" y="110" width="260" height="110" rx="16" fill="#1e1b4b" stroke="#818cf8"/>
+  <text x="82" y="148" fill="#eef2ff" font-size="22" font-weight="700">A. load_json(raw caches)</text>
+  <text x="82" y="180" fill="#c7d2fe" font-size="16">8 个 source raw cache + phase3_rules.yaml</text>
+  <text x="82" y="204" fill="#c7d2fe" font-size="16">source_health() + staleness</text>
+
+  <rect x="390" y="110" width="300" height="110" rx="16" fill="#172554" stroke="#60a5fa"/>
+  <text x="412" y="148" fill="#eff6ff" font-size="22" font-weight="700">B. build_semantic_event_pool()</text>
+  <text x="412" y="180" fill="#dbeafe" font-size="16">jin10/blockbeats macro_summary → synthetic ids</text>
+  <text x="412" y="204" fill="#dbeafe" font-size="16">okx_news/opennews/blockbeats news → normalized events</text>
+
+  <rect x="760" y="110" width="280" height="110" rx="16" fill="#052e16" stroke="#4ade80"/>
+  <text x="782" y="148" fill="#ecfdf5" font-size="22" font-weight="700">C. normalize_raw_event()</text>
+  <text x="782" y="180" fill="#d1fae5" font-size="16">classify_event_domain()</text>
+  <text x="782" y="204" fill="#d1fae5" font-size="16">classify_event_subtype()</text>
+
+  <rect x="1110" y="110" width="220" height="110" rx="16" fill="#3f1d0b" stroke="#fb923c"/>
+  <text x="1132" y="148" fill="#fff7ed" font-size="22" font-weight="700">D. novelty state</text>
+  <text x="1132" y="180" fill="#fed7aa" font-size="16">news_event_state.json</text>
+  <text x="1132" y="204" fill="#fed7aa" font-size="16">new / seen</text>
+
+  <rect x="80" y="310" width="340" height="170" rx="16" fill="#132c22" stroke="#34d399"/>
+  <text x="102" y="348" fill="#ecfdf5" font-size="22" font-weight="700">E. macro lane</text>
+  <text x="102" y="378" fill="#d1fae5" font-size="16">macro_domain_events = event_domain ∈ {macro, geo}</text>
+  <text x="102" y="404" fill="#d1fae5" font-size="16">+ is_macro_summary_candidate()</text>
+  <text x="102" y="430" fill="#d1fae5" font-size="16">build_macro_summary_view() → summary + summary_buckets</text>
+  <text x="102" y="456" fill="#d1fae5" font-size="16">Jin10 负责 geo_risk / event_window flags</text>
+
+  <rect x="470" y="310" width="420" height="170" rx="16" fill="#3a1221" stroke="#fb7185"/>
+  <text x="492" y="348" fill="#fff1f2" font-size="22" font-weight="700">F. crypto_news lane</text>
+  <text x="492" y="378" fill="#ffe4e6" font-size="16">event_domain ∈ {crypto_native, flow, institutional, regulation, security}</text>
+  <text x="492" y="404" fill="#ffe4e6" font-size="16">ranked_events 按 event_score / holds_match / novelty 排序</text>
+  <text x="492" y="430" fill="#ffe4e6" font-size="16">high_impact_events[:10] / new_high_impact_events[:5] / watchlist_events[:5]</text>
+  <text x="492" y="456" fill="#ffe4e6" font-size="16">security_events = extract_security_events(ranked_events)</text>
+
+  <rect x="940" y="310" width="350" height="170" rx="16" fill="#12283a" stroke="#22d3ee"/>
+  <text x="962" y="348" fill="#ecfeff" font-size="22" font-weight="700">G. social + market_context lanes</text>
+  <text x="962" y="378" fill="#cffafe" font-size="16">social = opentwitter + cmc_trending_symbols + moss dates</text>
+  <text x="962" y="404" fill="#cffafe" font-size="16">market_context = blockbeats quantitative + CMC breadth</text>
+  <text x="962" y="430" fill="#cffafe" font-size="16">holdings = okx_positions</text>
+
+  <rect x="240" y="580" width="320" height="150" rx="16" fill="#1f2937" stroke="#94a3b8"/>
+  <text x="262" y="618" fill="#f8fafc" font-size="22" font-weight="700">H. regime_bias</text>
+  <text x="262" y="648" fill="#e2e8f0" font-size="16">usd + us10y + geo + event_window</text>
+  <text x="262" y="674" fill="#e2e8f0" font-size="16">fear_greed + market_breadth + moss_sentiment</text>
+  <text x="262" y="700" fill="#e2e8f0" font-size="16">thresholds: >=2 bullish / <=-2 bearish else neutral</text>
+
+  <rect x="640" y="580" width="320" height="150" rx="16" fill="#1f2937" stroke="#f59e0b"/>
+  <text x="662" y="618" fill="#fff7ed" font-size="22" font-weight="700">I. risk_state</text>
+  <text x="662" y="648" fill="#ffedd5" font-size="16">geo + event_pre/recent + news_risk + security</text>
+  <text x="662" y="674" fill="#ffedd5" font-size="16">fear_greed extremity + moss extremity</text>
+  <text x="662" y="700" fill="#ffedd5" font-size="16">extreme 需要 gate，不是普通高风险自动升级</text>
+
+  <rect x="1030" y="580" width="260" height="150" rx="16" fill="#0f172a" stroke="#60a5fa"/>
+  <text x="1052" y="618" fill="#eff6ff" font-size="22" font-weight="700">J. compatibility views</text>
+  <text x="1052" y="648" fill="#dbeafe" font-size="16">macro_context</text>
+  <text x="1052" y="674" fill="#dbeafe" font-size="16">security</text>
+  <text x="1052" y="700" fill="#dbeafe" font-size="16">signal_inputs</text>
+
+  <rect x="380" y="800" width="640" height="100" rx="18" fill="#111827" stroke="#818cf8"/>
+  <text x="410" y="840" fill="#f8fafc" font-size="22" font-weight="700">K. write context/context_cache.json + update news_event_state.json</text>
+  <text x="410" y="870" fill="#c7d2fe" font-size="16">后续 build_triggers.py 与 notifier 全部消费这里的语义化上下文</text>
+
+  <line x1="320" y1="165" x2="390" y2="165" stroke="#c4b5fd" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="690" y1="165" x2="760" y2="165" stroke="#c4b5fd" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="1040" y1="165" x2="1110" y2="165" stroke="#c4b5fd" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="560" y1="220" x2="250" y2="310" stroke="#c4b5fd" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="560" y1="220" x2="680" y2="310" stroke="#c4b5fd" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="560" y1="220" x2="1120" y2="310" stroke="#c4b5fd" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="420" y1="480" x2="400" y2="580" stroke="#c4b5fd" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="680" y1="480" x2="800" y2="580" stroke="#c4b5fd" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="1115" y1="480" x2="1160" y2="580" stroke="#c4b5fd" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="560" y1="655" x2="640" y2="655" stroke="#c4b5fd" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="960" y1="655" x2="1030" y2="655" stroke="#c4b5fd" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="800" y1="730" x2="740" y2="800" stroke="#c4b5fd" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="1160" y1="730" x2="900" y2="800" stroke="#c4b5fd" stroke-width="3" marker-end="url(#arrow2)"/>
+</svg>
+</div>
+  </section>
+
+  <section>
+    <h2>4. 评分标准（Scoring Standard）</h2>
+    <h3>4.1 regime_bias（方向偏置）</h3>
+    <p>代码位置：<code>scripts/build_context_cache.py::classify_regime_bias()</code>。注意：当前项目把 <code>macro.regime</code> 兼容镜像到 <code>macro.regime_bias</code>，实际语义以 <code>regime_bias</code> 为准。</p>
+    <table class="small">
+      <thead><tr><th>输入项</th><th>加减分规则</th></tr></thead>
+      <tbody><tr><td>usd_strength</td><td>weak:+1 / neutral:0 / strong:-1</td></tr><tr><td>us10y_pressure</td><td>low:+1 / medium:0 / high:-1</td></tr><tr><td>geo_risk</td><td>low:+0.5 / medium:0 / high:-1</td></tr><tr><td>event_window</td><td>true:-0.5 / false:0</td></tr><tr><td>fear_greed_classification</td><td>extreme_fear:-1.5 / fear:-1 / neutral:0 / greed:+1 / extreme_greed:+1.5</td></tr><tr><td>market_breadth</td><td>broad_risk_on:+1.5 / mixed:0 / broad_risk_off:-1.5</td></tr><tr><td>moss_sentiment_today</td><td>&gt;=65:+1.5 / 55-64:+1 / 45-54:0 / 35-44:-1 / &lt;35:-1.5</td></tr></tbody>
+    </table>
+    <p><b>阈值：</b>总分 <code>&gt;= 2</code> → <code>bullish</code>；总分 <code>&lt;= -2</code> → <code>bearish</code>；否则 <code>neutral</code>；若所有核心输入都缺失 → <code>unknown</code>。</p>
+
+    <h3>4.2 risk_state（风险预算）</h3>
+    <p>代码位置：<code>scripts/build_context_cache.py::classify_risk_state()</code>。设计上它不代表方向，而代表是否应该收缩风险预算。</p>
+    <table class="small">
+      <thead><tr><th>输入项</th><th>加分规则</th></tr></thead>
+      <tbody><tr><td>geo_risk</td><td>low:+0 / medium:+1 / high:+3</td></tr><tr><td>event_pre_release</td><td>true:+2</td></tr><tr><td>event_recent_release</td><td>true:+1</td></tr><tr><td>news_risk</td><td>low:+0 / medium:+1.5 / high:+3</td></tr><tr><td>security_events</td><td>live_exploit:+4 / post_exploit_active:+2 / 全postmortem:+0.5</td></tr><tr><td>moss_sentiment_today extremity</td><td>&gt;=75 或 &lt;=25:+1；65-74 或 26-35:+0.5</td></tr><tr><td>fear_greed extremity</td><td>extreme_fear/extreme_greed:+1；fear/greed:+0.5</td></tr></tbody>
+    </table>
+    <p><b>阈值：</b><code>&lt;=1</code> → <code>low</code>；<code>&lt;=4</code> → <code>medium</code>；<code>&lt;=8</code> → <code>high</code>；普通情况下 >8 仍保持 <code>high</code>。只有在 <code>score &gt;= 10</code> 或 extreme gate 触发时才进 <code>extreme</code>。</p>
+    <p><b>extreme gate（当前实现）</b>：满足任一条即可 → <code>extreme</code></p>
+    <ul>
+      <li>任一 <code>security_event.state == live_exploit</code></li>
+      <li><code>geo_risk == high</code> 且 <code>event_pre_release == true</code> 且 <code>news_risk == high</code></li>
+    </ul>
+    <div class="footer-note">这意味着：市场可以是 <code>neutral</code> / <code>bearish</code>，但风险仍然是 <code>high</code>；也可以是 <code>bullish</code>，但因为宏观窗口和安全事件堆叠而保持高风险。</div>
+  </section>
+
+  <section>
+    <h2>5. Trigger / Phase4 决策流程图</h2>
+    <div class="diagram">
+<svg viewBox="0 0 1400 980" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="arrow3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L10,3 L0,6 z" fill="#fca5a5"/></marker></defs>
+  <rect x="30" y="20" width="1340" height="940" rx="24" fill="#1a0f12" stroke="#7f1d1d"/>
+  <text x="60" y="60" fill="#fee2e2" font-size="28" font-weight="700">Trigger / Phase4 决策流程</text>
+  <rect x="70" y="120" width="240" height="100" rx="16" fill="#3f1d0b" stroke="#fb923c"/>
+  <text x="95" y="158" fill="#fff7ed" font-size="22" font-weight="700">Input</text>
+  <text x="95" y="188" fill="#ffedd5" font-size="16">context_cache.json</text>
+
+  <rect x="390" y="90" width="320" height="150" rx="16" fill="#3a1221" stroke="#fb7185"/>
+  <text x="415" y="128" fill="#fff1f2" font-size="22" font-weight="700">A. Held Symbol Security Trigger</text>
+  <text x="415" y="158" fill="#ffe4e6" font-size="16">semantic_security_events()</text>
+  <text x="415" y="184" fill="#ffe4e6" font-size="16">if held symbol matches AND state == live_exploit</text>
+  <text x="415" y="210" fill="#ffe4e6" font-size="16">→ held_symbol_security_event / critical / wake_hermes</text>
+
+  <rect x="760" y="90" width="320" height="150" rx="16" fill="#3a1221" stroke="#fb7185"/>
+  <text x="785" y="128" fill="#fff1f2" font-size="22" font-weight="700">B. Held Symbol Event Cluster</text>
+  <text x="785" y="158" fill="#ffe4e6" font-size="16">同一持仓币命中 ≥2 条高重要度新事件</text>
+  <text x="785" y="184" fill="#ffe4e6" font-size="16">novelty=new & importance=high</text>
+  <text x="785" y="210" fill="#ffe4e6" font-size="16">domain∈security/flow/institutional/regulation/crypto_native</text>
+
+  <rect x="1130" y="90" width="220" height="150" rx="16" fill="#3a1221" stroke="#fb7185"/>
+  <text x="1152" y="128" fill="#fff1f2" font-size="22" font-weight="700">C. Macro Confluence</text>
+  <text x="1152" y="158" fill="#ffe4e6" font-size="16">bearish regime</text>
+  <text x="1152" y="184" fill="#ffe4e6" font-size="16">geo_risk=high</text>
+  <text x="1152" y="210" fill="#ffe4e6" font-size="16">event_window=true + news_risk=high</text>
+
+  <rect x="140" y="340" width="360" height="140" rx="16" fill="#052e16" stroke="#4ade80"/>
+  <text x="165" y="378" fill="#ecfdf5" font-size="22" font-weight="700">LLM Wake Merge</text>
+  <text x="165" y="408" fill="#d1fae5" font-size="16">llm_wake_triggers = symbol security + symbol cluster + macro confluence</text>
+  <text x="165" y="434" fill="#d1fae5" font-size="16">llm_wake_required = bool(llm_wake_triggers)</text>
+
+  <rect x="570" y="340" width="340" height="140" rx="16" fill="#172554" stroke="#60a5fa"/>
+  <text x="595" y="378" fill="#eff6ff" font-size="22" font-weight="700">Observe Only</text>
+  <text x="595" y="408" fill="#dbeafe" font-size="16">若 high_impact_events 中存在</text>
+  <text x="595" y="434" fill="#dbeafe" font-size="16">event_subtype == us_equity_risk_sentiment 且 importance==high</text>
+  <text x="595" y="460" fill="#dbeafe" font-size="16">→ us_equity_risk_proxy_shift / observe_only</text>
+
+  <rect x="980" y="320" width="330" height="180" rx="16" fill="#132c22" stroke="#34d399"/>
+  <text x="1005" y="358" fill="#ecfdf5" font-size="22" font-weight="700">Phase4 Priority Symbols</text>
+  <text x="1005" y="388" fill="#d1fae5" font-size="16">1) holdings.prioritized_symbols → critical</text>
+  <text x="1005" y="414" fill="#d1fae5" font-size="16">2) top_discussed_symbols 且 weighted_heat≥80000 且 unique_accounts≥2 → high</text>
+  <text x="1005" y="440" fill="#d1fae5" font-size="16">3) social.cmc_trending_symbols → medium</text>
+  <text x="1005" y="466" fill="#d1fae5" font-size="16">dedupe by seen_symbols</text>
+
+  <rect x="250" y="600" width="900" height="220" rx="20" fill="#0f172a" stroke="#94a3b8"/>
+  <text x="285" y="640" fill="#f8fafc" font-size="24" font-weight="700">重要边界 / Non-goals</text>
+  <text x="285" y="675" fill="#e2e8f0" font-size="18">• Phase4 是 technical analysis only，不负责决定是否唤醒 LLM。</text>
+  <text x="285" y="707" fill="#e2e8f0" font-size="18">• 社交热度高 ≠ 自动唤醒；只会提升 Phase4 priority。</text>
+  <text x="285" y="739" fill="#e2e8f0" font-size="18">• 安全事件只有 live_exploit 才直接 wake；background / postmortem 不直接唤醒。</text>
+  <text x="285" y="771" fill="#e2e8f0" font-size="18">• 宏观四因子当前版本已改为：满足即 wake_hermes，不再要求额外 escalation marker。</text>
+
+  <line x1="310" y1="170" x2="390" y2="165" stroke="#fca5a5" stroke-width="3" marker-end="url(#arrow3)"/>
+  <line x1="310" y1="170" x2="760" y2="165" stroke="#fca5a5" stroke-width="3" marker-end="url(#arrow3)"/>
+  <line x1="310" y1="170" x2="1130" y2="165" stroke="#fca5a5" stroke-width="3" marker-end="url(#arrow3)"/>
+  <line x1="550" y1="240" x2="320" y2="340" stroke="#fca5a5" stroke-width="3" marker-end="url(#arrow3)"/>
+  <line x1="920" y1="240" x2="340" y2="340" stroke="#fca5a5" stroke-width="3" marker-end="url(#arrow3)"/>
+  <line x1="1240" y1="240" x2="360" y2="340" stroke="#fca5a5" stroke-width="3" marker-end="url(#arrow3)"/>
+  <line x1="310" y1="170" x2="740" y2="340" stroke="#fca5a5" stroke-width="3" marker-end="url(#arrow3)"/>
+  <line x1="310" y1="170" x2="1120" y2="320" stroke="#fca5a5" stroke-width="3" marker-end="url(#arrow3)"/>
+  <line x1="740" y1="480" x2="710" y2="600" stroke="#fca5a5" stroke-width="3" marker-end="url(#arrow3)"/>
+  <line x1="320" y1="480" x2="500" y2="600" stroke="#fca5a5" stroke-width="3" marker-end="url(#arrow3)"/>
+  <line x1="1140" y1="500" x2="900" y2="600" stroke="#fca5a5" stroke-width="3" marker-end="url(#arrow3)"/>
+</svg>
+</div>
+  </section>
+
+  <section class="page-break">
+    <h2>6. Trigger 触发条件（代码真实条件）</h2>
+    <table>
+      <thead><tr><th>trigger_type</th><th>条件</th><th>action</th><th>priority</th></tr></thead>
+      <tbody><tr><td>held_symbol_security_event</td><td>持仓币 + security_event.state == live_exploit</td><td>wake_hermes</td><td>critical</td></tr><tr><td>held_symbol_event_cluster</td><td>同一持仓币在 high_impact_events 中命中 &gt;=2 条；同时 novelty==new, importance==high, event_domain∈{security,flow,institutional,regulation,crypto_native}</td><td>wake_hermes</td><td>high</td></tr><tr><td>macro_risk_confluence</td><td>regime_bias/regime == bearish AND geo_risk == high AND event_window == true AND crypto_news.news_risk == high</td><td>wake_hermes</td><td>high</td></tr><tr><td>us_equity_risk_proxy_shift</td><td>high_impact_events 中存在 event_subtype == us_equity_risk_sentiment 且 importance==high</td><td>observe_only</td><td>medium</td></tr></tbody>
+    </table>
+    <h3>6.1 重点解释</h3>
+    <ul>
+      <li><b>当前宏观四因子共振已经是直接唤醒：</b>不再要求额外 crypto-native escalation marker。</li>
+      <li><b>持仓安全事件只有 <code>live_exploit</code> 直接唤醒：</b><code>post_exploit_active</code>、<code>postmortem</code>、<code>background</code> 不会单独 wake。</li>
+      <li><b>Phase4 priority 与 LLM wake 分离：</b>社交热度高、CMC trending、持仓优先只决定 TA 的扫描顺序，不决定是否唤醒 LLM。</li>
+      <li><b>observe-only 当前只有一类：</b>美股风险代理发生明显偏移，但未达到 wake 级别。</li>
+    </ul>
+
+    <h3>6.2 当前版本下会 wake 的典型 example</h3>
+    <ul>
+      <li><b>持仓安全事件：</b>你持有 ETH，出现 “ETH protocol live exploit / funds still draining”。</li>
+      <li><b>持仓事件簇：</b>你持有 BTC，同时出现 2 条以上新的高重要度事件，例如 ETF 大额流出 + treasury 增持 / 监管冲击。</li>
+      <li><b>宏观四因子共振：</b><code>regime_bias=bearish</code>、<code>geo_risk=high</code>、<code>event_window=true</code>、<code>news_risk=high</code> 同时成立。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>7. P3 输出文件与字段落点</h2>
+    <table class="small">
+      <thead><tr><th>文件</th><th>作用</th><th>核心字段</th></tr></thead>
+      <tbody>
+        <tr><td>context/raw/*.json</td><td>各 source 原始缓存</td><td>status / updated_at / raw data / normalized source output</td></tr>
+        <tr><td>context/context_cache.json</td><td>P3 统一语义上下文</td><td>macro / crypto_news / social / holdings / market_context / macro_context / security / signal_inputs / health</td></tr>
+        <tr><td>context/news_event_state.json</td><td>新闻新旧状态机</td><td>first_seen_at / last_seen_at / seen_count / novelty</td></tr>
+        <tr><td>context/trigger_candidates.json</td><td>Trigger 决策产物</td><td>llm_wake_required / llm_wake_triggers / observe_only_triggers / phase4_priority_symbols</td></tr>
+        <tr><td>Telegram notifier</td><td>人类读的 heartbeat</td><td>当前状态 / Trigger 判定 / Phase4 priority / API health</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>8. 当前 live run 结果（本 PDF 生成时的实跑快照）</h2>
+    <div class="grid3">
+      <div class="metric"><div class="label">sources_ok</div><div class="value">8 / 8</div></div>
+      <div class="metric"><div class="label">builder_ok</div><div class="value">true</div></div>
+      <div class="metric"><div class="label">trigger_ok</div><div class="value">true</div></div>
+      <div class="metric"><div class="label">holdings</div><div class="value" style="font-size:18px">MASK, ETH, BTC</div></div>
+      <div class="metric"><div class="label">regime_bias</div><div class="value">neutral</div></div>
+      <div class="metric"><div class="label">risk_state</div><div class="value">high</div></div>
+      <div class="metric"><div class="label">geo_risk</div><div class="value">high</div></div>
+      <div class="metric"><div class="label">event_window</div><div class="value">False</div></div>
+      <div class="metric"><div class="label">llm_wake_required</div><div class="value">False</div></div>
+    </div>
+    <p style="margin-top:16px;">当前实跑下：<b>没有触发 LLM 唤醒</b>。原因是虽然 <code>geo_risk=high</code>、<code>news_risk=high</code>，但 <code>event_window=false</code> 且 <code>regime_bias=neutral</code>，所以宏观四因子不成立；同时当前也没有命中“持仓币 live_exploit”或“持仓币新高重要度事件簇”。</p>
+  </section>
+
+  <section>
+    <h2>9. 结论（给后续 P4 / 运营看的简明版）</h2>
+    <ul>
+      <li>P3 的本质：<b>多源采集 → 语义聚合 → 市场状态评分 → 严格 trigger → 短通知</b>。</li>
+      <li>真正唤醒 LLM 的只有 3 条：<b>持仓 live exploit / 持仓事件簇 / 宏观四因子共振</b>。</li>
+      <li>Phase4 优先列表只决定技术分析顺序：<b>持仓优先 &gt; 社交高热 &gt; CMC trending</b>。</li>
+      <li>当前 notifier 已收敛为：只发当前状态，不再发变化历史。</li>
+    </ul>
+  </section>
+</div>
+</body>
+</html>

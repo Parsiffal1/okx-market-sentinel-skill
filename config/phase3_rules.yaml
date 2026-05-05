@@ -1,0 +1,406 @@
+version: 1
+
+cache_policy:
+  aggregation_interval_minutes: 15
+  allow_partial_updates: true
+  stale_policy: keep_last_good
+
+staleness_threshold_minutes:
+  holdings: 15
+  macro: 240
+  crypto_news: 120
+  social: 120
+  market_context: 240
+
+enum_values:
+  macro_regime: [bullish, neutral, bearish, unknown]
+  risk_level: [low, medium, high, extreme, unknown]
+  directional_bias: [bullish, slightly_bullish, neutral, slightly_bearish, bearish, mixed, unknown]
+  flow_state: [positive, slightly_positive, neutral, slightly_negative, negative, mixed, unknown]
+  liquidity_state: [expanding, flat, contracting, unknown]
+  activity_state: [high, medium, low, unknown]
+
+macro_regime_rules:
+  score_to_regime:
+    bullish_min: 2
+    bearish_max: -2
+  geo_risk_penalty:
+    medium: -1
+    high: -2
+  pre_or_recent_event_penalty: -1
+  fear_greed_score:
+    extreme_fear: -2
+    fear: -1
+    neutral: 0
+    greed: 1
+    extreme_greed: 1
+  market_breadth_score:
+    broad_risk_off: -1
+    mixed: 0
+    broad_risk_on: 1
+
+macro_rules:
+  geo_risk_keywords_high:
+    - 战争
+    - 开战
+    - 宣战
+    - 空袭
+    - 大规模袭击
+    - 报复性打击
+    - 报复行动
+    - 直接参战
+    - 地面进攻
+    - 地面行动
+    - 总动员
+    - 无人机袭击
+    - 弹道导弹
+    - 巡航导弹
+    - 霍尔木兹
+    - 霍尔木兹海峡
+    - 红海
+    - 红海航运
+    - 曼德海峡
+    - 巴布-曼德海峡
+    - 苏伊士运河
+    - 油轮遇袭
+    - 商船遇袭
+    - 航运中断
+    - 原油运输中断
+    - 炼油厂遇袭
+    - 油田遇袭
+    - 输油管道中断
+    - 供应中断
+    - LNG供应中断
+    - 天然气供应中断
+    - 核设施
+    - 核设施遇袭
+    - 核试验
+    - 战术核武
+    - 二级制裁
+    - 石油禁运
+    - SWIFT制裁
+    - 伊朗
+    - 以色列
+    - 俄罗斯
+    - 乌克兰
+    - 胡塞武装
+    - 真主党
+    - 伊朗革命卫队
+  geo_risk_keywords_medium:
+    - 停火破裂
+    - 停火失败
+    - 跨境打击
+    - 越境打击
+    - 资产冻结
+    - 出口管制
+    - 航运改道
+    - 停航
+    - 战争风险保险
+    - 保险费飙升
+    - 战略石油储备释放
+    - 油价飙升
+    - 原油暴涨
+    - 封锁实施
+    - 海上封锁
+    - 港口关闭
+    - 关税
+    - 报复性关税
+  geo_risk_shock_keywords:
+    - 海峡关闭
+    - 霍尔木兹海峡关闭
+    - 海上封锁
+    - 封锁实施
+    - 停火破裂
+    - 停火失败
+    - 核设施遇袭
+    - 开战
+    - 宣战
+    - 报复性打击
+    - 大规模袭击
+    - 直接参战
+    - 原油运输中断
+    - 商船遇袭
+    - 油轮遇袭
+    - 输油管道中断
+    - LNG供应中断
+    - 战略石油储备释放
+    - 油价飙升
+  event_window_crypto_high_relevance_keywords:
+    - CPI
+    - 核心CPI
+    - PPI
+    - PCE
+    - 核心PCE
+    - PMI
+    - ISM
+    - GDP
+    - 非农
+    - NFP
+    - 失业率
+    - 初请失业金
+    - JOLTS
+    - ADP
+    - 利率
+    - 降息
+    - 加息
+    - 美联储
+    - 鲍威尔
+    - FOMC
+    - 点阵图
+    - 杰克逊霍尔
+    - 关税
+  macro_summary_relevance_keywords:
+    - 特朗普
+    - 白宫
+    - 美联储
+    - Fed
+    - 鲍威尔
+    - Powell
+    - FOMC
+    - CPI
+    - 核心CPI
+    - PPI
+    - PCE
+    - 核心PCE
+    - 非农
+    - NFP
+    - 失业率
+    - 初请失业金
+    - JOLTS
+    - ADP
+    - 通胀
+    - 降息
+    - 加息
+    - 点阵图
+    - 杰克逊霍尔
+    - DXY
+    - 美元指数
+    - 美债收益率
+    - 2年期美债收益率
+    - 10年期美债收益率
+    - 实际收益率
+    - 收益率曲线
+    - 收益率倒挂
+    - 金融条件
+    - QT
+    - QE
+    - 缩表
+    - 量化宽松
+    - GDP
+    - PMI
+    - ISM
+    - 零售销售
+    - 霍尔木兹
+    - 红海
+    - 曼德海峡
+    - 苏伊士运河
+    - 伊朗
+    - 以色列
+    - 俄罗斯
+    - 乌克兰
+    - 制裁
+    - 二级制裁
+    - 石油禁运
+    - SWIFT制裁
+    - 关税
+    - 欧佩克
+    - 日本央行
+    - BOJ
+    - YCC
+    - ECB
+    - BOE
+    - PBOC
+    - 降准
+    - 美股
+    - 美股期货
+    - 美股开盘
+    - 美股收盘
+    - 美股盘前
+    - 美股盘后
+    - 盘前
+    - 盘后
+    - 盘初
+    - 尾盘
+    - VIX
+    - 恐慌指数
+    - 纳斯达克
+    - 纳指
+    - 纳斯达克100
+    - 纳指期货
+    - NQ
+    - NQ1!
+    - 标普500
+    - SPX
+    - SPY
+    - QQQ
+    - ES
+    - ES1!
+    - CRCL
+    - CIRCLE
+    - BMNR
+    - MSTR
+    - COIN
+    - HOOD
+    - MARA
+    - RIOT
+    - CLSK
+    - BTDR
+    - IBIT
+    - FBTC
+    - ARKB
+    - BITB
+    - GBTC
+    - ETHA
+    - FETH
+    - 比特币ETF
+    - 现货比特币ETF
+    - 以太坊ETF
+    - 现货以太坊ETF
+  macro_summary_exclude_keywords:
+    - A股
+    - 港股
+    - 创业板
+    - 科创板
+    - 恒生科技指数
+    - 涨停
+    - 跌停
+    - 开盘活跃
+    - 早盘收盘
+    - 国内期货
+    - 日内跌
+    - 日内跌超
+    - 日内涨
+    - 日内涨超
+    - 地产板块
+    - 半导体材料概念
+    - 地级市
+    - 生产总值
+    - 一季度
+    - 二季度
+    - 三季度
+    - 四季度
+    - 杭州
+    - 深圳
+    - 广州
+    - 成都
+    - 苏州
+    - 广东
+    - 人行广东省分行
+    - 金融机构新发放贷款利率
+    - 股票评级
+    - 印度股票
+    - G20峰会
+    - HKMA
+    - HIBOR
+    - 离岸人民币同业拆息
+    - 纽约期银
+    - 每日热门ETF要闻汇总
+    - 沪银
+    - 苹果
+    - Apple
+    - AAPL
+    - 英伟达
+    - NVIDIA
+    - NVDA
+    - Tesla
+    - TSLA
+    - AMD
+    - SMCI
+    - TSM
+    - SOXX
+    - NFLX
+    - META
+    - 金十图示
+    - 中国金龙指数
+    - Google Drive
+    - AI概览
+    - 立即观看
+    - 正在讲解中
+    - 直播
+  event_window_hours_before: 24
+  event_window_hours_after: 2
+  list_flash_max_pages: 1
+  list_news_max_pages: 1
+
+crypto_news_rules:
+  high_impact_min_score: 80
+  max_high_impact_items: 10
+  bullish_keywords:
+    - ETF流入
+    - 上市
+    - 增持
+    - 合作
+    - upgrade
+    - inflow
+    - bullish
+  bearish_keywords:
+    - exploit
+    - hack
+    - 脱锚
+    - 起诉
+    - 调查
+    - 流出
+    - bearish
+    - attack
+
+social_rules:
+  max_watch_items: 20
+  heat_weights:
+    view_count: 1
+    favorite_count: 20
+    reply_count: 30
+  major_aliases:
+    BTC: [BTC, btc, 大饼, 比特币, XBT, xbt]
+    ETH: [ETH, eth, 二饼, 以太, 姨太, Ethereum, ethereum]
+    SOL: [SOL, sol, Solana, solana]
+  symbol_ignore_tokens:
+    - CRYPTO
+    - MEME
+    - FOMO
+    - BLOCKBEATS
+    - COINGLASS
+    - LATEST
+    - BINANCE
+    - BITGET
+    - VIP
+    - ZACHXBT
+    - MSTR
+    - LTH
+    - EMA
+    - HTTPS
+    - APP
+    - COM
+    - LINK
+    - COPYLINK
+    - SOURCE
+    - SHARE
+    - SQUARE
+    - HOST
+    - WEB
+    - UNI
+    - CSPA
+    - OBGWVH
+  high_risk_keywords:
+    - rug
+    - scam
+    - exploit
+    - hacked
+    - hacked
+    - 归零
+  bullish_keywords:
+    - long
+    - bullish
+    - 看多
+    - 还得涨
+  bearish_keywords:
+    - short
+    - bearish
+    - 看空
+    - 要跌
+
+market_context_rules:
+  dxy_strong_threshold: 0.5
+  dxy_weak_threshold: -0.5
+  us10y_high_threshold: 4.5
+  sentiment_bullish_threshold: 60
+  sentiment_bearish_threshold: 40

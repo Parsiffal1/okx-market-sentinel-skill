@@ -1,0 +1,7 @@
+# Exclude local runtime artifacts from ClawHub-style packaging
+context/
+reports/
+logs/
+__pycache__/
+.pytest_cache/
+.env
