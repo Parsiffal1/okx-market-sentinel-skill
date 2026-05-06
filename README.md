@@ -64,8 +64,37 @@ python scripts/run_phase3_notifier.py
 
 ### 3. Start the dashboard
 ```bash
-python dashboard/server.py --host 0.0.0.0 --port 8765
+python dashboard/server.py --host 127.0.0.1 --port 8765
 ```
+
+## Compatibility
+
+This repository is designed as a **skill + runnable reference implementation hybrid**.
+
+- **Hermes**: supported as a local skill plus full reference project
+- **OpenClaw-style skill layouts**: supported through the `skills/crypto-market-sentinel/` subtree and single-file frontmatter metadata
+- **Other agent runtimes**: supported best through manual integration using the skill subtree plus the repo root scripts
+
+The repository is not an in-process plugin SDK package. It is a reusable skill package with external scripts, docs, and runnable reference code.
+
+## Dependencies
+
+Real-world usage requires more than a single Python interpreter.
+
+### Required
+- `python`
+- project Python dependencies used by the scripts
+
+### Required for common OKX-first workflows
+- `okx` CLI for OKX market / news / positions fetchers
+
+### Required for Semantic Compass refresh
+- `hermes` CLI for agent-driven phrase-pack refresh
+
+### Optional / environment-dependent
+- Telegram credentials for notifier flows
+- source-specific tokens such as `OPENNEWS_TOKEN`, `TWITTER_TOKEN`, and `OPEN_TOKEN`
+- locally available access to the configured upstream data providers
 
 ## Installation patterns
 
@@ -155,4 +184,4 @@ pytest -q
 
 ## License
 
-No license has been added yet. Add one explicitly before broad public reuse if you want downstream users to have clear redistribution rights.
+This repository is released under the MIT License. See `LICENSE`.

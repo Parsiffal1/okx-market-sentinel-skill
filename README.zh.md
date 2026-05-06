@@ -69,8 +69,37 @@ python scripts/run_phase3_notifier.py
 
 ### 3. 启动 dashboard
 ```bash
-python dashboard/server.py --host 0.0.0.0 --port 8765
+python dashboard/server.py --host 127.0.0.1 --port 8765
 ```
+
+## 兼容性
+
+这个仓库被设计成 **skill + 可运行参考实现** 的混合形态。
+
+- **Hermes**：支持作为本地 skill 使用，也支持完整参考项目运行
+- **OpenClaw 风格 skill 布局**：通过 `skills/crypto-market-sentinel/` 子树与单行 frontmatter 元数据兼容
+- **其他 agent runtime**：更适合手工集成 skill 子目录与仓库根目录脚本
+
+它不是某个单一 runtime 的 in-process 插件 SDK，而是一个可复用 skill 包 + 外部脚本/文档/参考实现。
+
+## 依赖说明
+
+真实运行依赖不止一个 Python 解释器。
+
+### 必需
+- `python`
+- 运行这些脚本所需的 Python 依赖
+
+### 常见 OKX-first 工作流必需
+- `okx` CLI（OKX market / news / positions fetchers 会用到）
+
+### Semantic Compass 刷新必需
+- `hermes` CLI（用于 agent 驱动的语义短语包刷新）
+
+### 可选 / 视环境而定
+- Telegram notifier 所需凭据
+- `OPENNEWS_TOKEN`、`TWITTER_TOKEN`、`OPEN_TOKEN` 等 source token
+- 可访问配置中声明的上游数据源
 
 ## 安装方式
 
@@ -160,4 +189,4 @@ pytest -q
 
 ## 许可证
 
-当前仓库还没有加入许可证文件。如果你希望对外广泛复用，建议在公开发布前明确补上许可证。
+本仓库采用 MIT License，见 `LICENSE`。

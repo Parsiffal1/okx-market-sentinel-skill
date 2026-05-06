@@ -7,27 +7,8 @@ user-invocable: true
 homepage: https://github.com/Parsiffal1/okx-market-sentinel-skill
 repository: https://github.com/Parsiffal1/okx-market-sentinel-skill
 author: Parsiffal
-license: UNLICENSED
-metadata:
-  openclaw:
-    emoji: "📡"
-    tags:
-      - market-monitoring
-      - okx
-      - crypto
-      - dashboard
-      - telegram
-      - risk-management
-      - semantic-compass
-    requires:
-      bins:
-        - python
-      optionalEnv:
-        - OKX credentials
-        - TELEGRAM_BOT_TOKEN
-        - OPENNEWS_TOKEN
-        - TWITTER_TOKEN
-        - OPEN_TOKEN
+license: MIT
+metadata: {"openclaw": {"emoji": "📡", "tags": ["market-monitoring", "okx", "crypto", "dashboard", "telegram", "risk-management", "semantic-compass"], "requires": {"bins": ["python", "okx", "hermes"], "optionalEnv": ["TELEGRAM_BOT_TOKEN", "OPENNEWS_TOKEN", "TWITTER_TOKEN", "OPEN_TOKEN"]}}, "hermes": {"requires_toolsets": ["terminal", "file", "web"]}}
 ---
 
 # Crypto Market Sentinel
@@ -117,7 +98,7 @@ python scripts/build_triggers.py
 
 ### Start dashboard
 ```bash
-python dashboard/server.py --host 0.0.0.0 --port 8765
+python dashboard/server.py --host 127.0.0.1 --port 8765
 ```
 
 ### Refresh Semantic Compass with an agent brief
