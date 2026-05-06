@@ -55,12 +55,81 @@ pip install requests PyYAML pytest
 
 ## Quick Start
 
-Clone this project into your local development environment. Click the **Code** button in the top-right corner of the repository page and follow the usual Git instructions.
+If this is your first time using the project, the best path is to **install it as an agent skill first**, then decide whether you also want the full runnable reference implementation.
+
+### Option A: OpenClaw first (recommended)
+
+If you already use OpenClaw, the fastest path is not to study every script first. The fastest path is to make the skill available to your agent.
+
+Install and initialize OpenClaw:
+
+```bash
+npm install -g openclaw@latest
+openclaw onboard --install-daemon
+```
+
+Then clone this repository locally:
 
 ```bash
 git clone https://github.com/Parsiffal1/okx-market-sentinel-skill.git
 cd okx-market-sentinel-skill
 ```
+
+Copy the skill into a personal OpenClaw skill directory:
+
+```bash
+mkdir -p ~/.agents/skills/market-monitoring
+cp -r skills/crypto-market-sentinel ~/.agents/skills/market-monitoring/
+```
+
+After you start a new OpenClaw session, the skill becomes discoverable.
+
+If you later publish it to ClawHub, OpenClaw users can use the true one-command install path:
+
+```bash
+openclaw skills install <your-skill-slug>
+```
+
+The repository already has an OpenClaw-compatible `SKILL.md` and layout. If you want to publish it to ClawHub, the public documented workflow is:
+
+```bash
+npm i -g clawhub
+clawhub login
+clawhub skill publish ./skills/crypto-market-sentinel \
+  --slug <your-skill-slug> \
+  --name "OKX Market Sentinel" \
+  --version 0.1.0 \
+  --tags latest
+```
+
+You can also sign in on the web and use the publish entry directly:
+
+- `https://clawhub.ai/publish-skill`
+
+For more OpenClaw-specific notes, see `OPENCLAW_SETUP.md`.
+
+### Option B: Hermes first (also recommended)
+
+If Hermes is your main runtime, the fastest path is also to drop the skill into your local skills directory first.
+
+```bash
+git clone https://github.com/Parsiffal1/okx-market-sentinel-skill.git
+cd okx-market-sentinel-skill
+mkdir -p ~/.hermes/skills/market-monitoring
+cp -r skills/crypto-market-sentinel ~/.hermes/skills/market-monitoring/
+```
+
+That gives you the practical setup right away:
+
+- Hermes can read `SKILL.md` immediately
+- `references/` and `templates/` come along with it
+- you can decide later whether to run the dashboard, notifier, and pipeline too
+
+For more Hermes-specific notes, see `HERMES_SETUP.md`.
+
+### Option C: run the full local implementation
+
+If you want more than the skill package — for example the dashboard, pipeline, notifier, and tests — continue with the full local setup below.
 
 Create and activate a Python virtual environment.
 
@@ -102,8 +171,8 @@ skills/crypto-market-sentinel/templates/dashboard_settings.example.json
 If you want to read OKX account or positions data, configure your OKX API credentials in local environment variables or a `.env` file. Read-only API keys are strongly recommended.
 
 ```bash
-OKX_API_KEY=<your_api_key>
-OKX_API_SECRET=<your_api_secret>
+OKX_API_KEY=***
+OKX_API_SECRET=***
 OKX_PASSPHRASE=<your_passphrase>
 OKX_IS_PAPER_TRADING=true
 ```
@@ -111,7 +180,7 @@ OKX_IS_PAPER_TRADING=true
 If you want Telegram notifications, configure:
 
 ```bash
-TELEGRAM_BOT_TOKEN=<your_telegram_bot_token>
+TELEGRAM_BOT_TOKEN=<your_...ken>
 TELEGRAM_CHAT_ID=<your_telegram_chat_id>
 ```
 

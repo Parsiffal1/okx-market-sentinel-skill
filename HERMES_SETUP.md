@@ -22,6 +22,6 @@ If you also want the dashboard, notifier, tests, and source fetchers, keep the f
 
 ```bash
 python scripts/phase3_pipeline.py
-python dashboard/server.py --host 0.0.0.0 --port 8765
+python dashboard/server.py --host 127.0.0.1 --port 8765
 pytest -q
 ```

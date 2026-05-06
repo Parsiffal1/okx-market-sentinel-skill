@@ -55,12 +55,81 @@ pip install requests PyYAML pytest
 
 ## 快速入门
 
-将此项目克隆到您的本地开发环境。点击页面右上角的 “Code” 按钮，然后按照说明操作即可克隆项目。
+如果你是第一次接这个项目，**最推荐先按 agent 方式接入**，也就是先接进 OpenClaw 或 Hermes，再决定要不要保留整套可运行参考实现。
+
+### 方案 A：OpenClaw 接入（优先推荐）
+
+如果你已经在用 OpenClaw，最快的路径不是先研究所有脚本，而是先把 skill 装进去。
+
+先安装并初始化 OpenClaw：
+
+```bash
+npm install -g openclaw@latest
+openclaw onboard --install-daemon
+```
+
+然后把仓库拉到本地：
 
 ```bash
 git clone https://github.com/Parsiffal1/okx-market-sentinel-skill.git
 cd okx-market-sentinel-skill
 ```
+
+把 skill 复制到 OpenClaw 可见的个人 skill 目录：
+
+```bash
+mkdir -p ~/.agents/skills/market-monitoring
+cp -r skills/crypto-market-sentinel ~/.agents/skills/market-monitoring/
+```
+
+重新开一个 OpenClaw 会话后，这个 skill 就可以被发现。
+
+如果你以后把它发布到 ClawHub，OpenClaw 用户就能走真正的一键安装：
+
+```bash
+openclaw skills install <your-skill-slug>
+```
+
+目前仓库里已经有 OpenClaw 兼容的 `SKILL.md` 和目录结构；如果你准备发布到 ClawHub，官方公开文档支持的流程是：
+
+```bash
+npm i -g clawhub
+clawhub login
+clawhub skill publish ./skills/crypto-market-sentinel \
+  --slug <your-skill-slug> \
+  --name "OKX Market Sentinel" \
+  --version 0.1.0 \
+  --tags latest
+```
+
+也可以直接在 ClawHub 页面登录后走发布入口：
+
+- `https://clawhub.ai/publish-skill`
+
+更多 OpenClaw 目录与集成说明见：`OPENCLAW_SETUP.md`
+
+### 方案 B：Hermes 接入（同样推荐）
+
+如果你主要在用 Hermes，最快方式也是先把 skill 放进本地 skills 目录。
+
+```bash
+git clone https://github.com/Parsiffal1/okx-market-sentinel-skill.git
+cd okx-market-sentinel-skill
+mkdir -p ~/.hermes/skills/market-monitoring
+cp -r skills/crypto-market-sentinel ~/.hermes/skills/market-monitoring/
+```
+
+这样做的好处是：
+
+- Hermes 先能读到 `SKILL.md`
+- references / templates 也会一起带上
+- 你后面再决定要不要把 dashboard、notifier、pipeline 全部跑起来
+
+更多 Hermes 接入方式见：`HERMES_SETUP.md`
+
+### 方案 C：完整本地运行（当你要跑 dashboard / pipeline / notifier 时）
+
+如果你不是只想装 skill，而是想把整套参考实现本地跑起来，再继续下面这些步骤。
 
 创建并激活 Python 虚拟环境。
 
@@ -102,8 +171,8 @@ skills/crypto-market-sentinel/templates/dashboard_settings.example.json
 如需读取 OKX 账户或持仓信息，请在本地环境变量或 `.env` 文件中配置 OKX API 凭据。建议仅使用只读权限 API Key。
 
 ```bash
-OKX_API_KEY=<your_api_key>
-OKX_API_SECRET=<your_api_secret>
+OKX_API_KEY=***
+OKX_API_SECRET=***
 OKX_PASSPHRASE=<your_passphrase>
 OKX_IS_PAPER_TRADING=true
 ```
@@ -111,7 +180,7 @@ OKX_IS_PAPER_TRADING=true
 如需启用 Telegram 通知，请配置：
 
 ```bash
-TELEGRAM_BOT_TOKEN=<your_telegram_bot_token>
+TELEGRAM_BOT_TOKEN=<your_...ken>
 TELEGRAM_CHAT_ID=<your_telegram_chat_id>
 ```
 
