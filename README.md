@@ -19,34 +19,34 @@ This project is not related to official OKX Trading Bot features. If you want of
 If you are not here to read architecture first and just want to know what this project actually sends to a user, start with a realistic notifier-style example.
 
 ```text
-OKX Market Sentinel | Run complete
-• Status: normal
-• Holdings: BTC, ETH
-• Bias: bearish
+OKX Market Sentinel | Scan complete
+• Status: healthy
+• Priority holdings: BTC, ETH
+• Market bias: bearish
 • Risk level: high
-• LLM wake: yes
-• Observe-only triggers: macro_event_window, held_symbol_pressure
+• Escalate to deeper analysis: yes
+• Watch-only triggers: macro event window, holdings pressure
 
-Trigger decision
-Macro four-factor confluence : triggered
-Holdings security event      : none
-Holdings event cluster       : triggered
-LLM wake                     : yes
-Observe-only triggers        : macro_event_window, held_symbol_pressure
+Risk trigger summary
+Macro risk confluence     : triggered
+Holdings security issue   : none
+Holdings event cluster    : triggered
+Escalate to deeper review : yes
+Watch-only triggers       : macro event window, holdings pressure
 
-Heat ranking
-• Current list: BTC, ETH, SOL, DOGE
-• Holdings priority: BTC, ETH
-• Whitelist social heat: SOL, DOGE
-• OKX open-interest moves: ETH, SOL
+Symbols worth watching
+• Current shortlist: BTC, ETH, SOL, DOGE
+• From existing holdings: BTC, ETH
+• From social momentum: SOL, DOGE
+• From OKX OI changes: ETH, SOL
 
-Holdings risk
-1. BTC | risk=high | events=2 | heat=18 | reasons=macro_event_window, held_symbol_cluster
-2. ETH | risk=medium | events=1 | heat=11 | reasons=oi_change
+Holdings at risk
+1. BTC | risk=high | events=2 | heat=18 | drivers=macro event window, holdings event cluster
+2. ETH | risk=medium | events=1 | heat=11 | drivers=open-interest change
 
 Top tradeable symbols
-1. SOL | score=82 | source=social heat + OKX open-interest moves | reason=high social heat; leading OI change
-2. DOGE | score=71 | source=social heat | reason=multi-account consensus
+1. SOL | score=82 | source=social momentum + OKX OI changes | why=high social heat; leading open-interest move
+2. DOGE | score=71 | source=social momentum | why=multi-account consensus
 ```
 
 In plain English, that is the product:
