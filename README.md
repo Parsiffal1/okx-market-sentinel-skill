@@ -56,6 +56,14 @@ In plain English, that is the product:
 - it surfaces the tradeable symbols worth watching next
 - it packages the result into a Telegram / agent-friendly message
 
+## Dashboard Preview
+
+If you would rather see what the finished product looks like before reading the code, start with these two screenshots:
+
+![OKX Market Sentinel dashboard screenshot 1](docs/assets/dashboard-screenshot-1.jpg)
+
+![OKX Market Sentinel dashboard screenshot 2](docs/assets/dashboard-screenshot-2.jpg)
+
 ## Getting Started
 
 ### Prerequisites
