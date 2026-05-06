@@ -97,31 +97,11 @@ pip install requests PyYAML pytest
 
 ## 快速入门
 
-如果你只想先装上去，不想看一大堆解释，先看这两行：
+如果你只想先装上去，不想看一大堆解释，就先用 Hermes 这一行：
 
-### OpenClaw
-```bash
-openclaw skills install <your-skill-slug>
-```
-
-### Hermes
 ```bash
 mkdir -p ~/.hermes/skills/market-monitoring && cp -r skills/crypto-market-sentinel ~/.hermes/skills/market-monitoring/
 ```
-
-如果这个 skill 还没正式发布到 ClawHub，那么 OpenClaw 先用本地目录方式也可以：
-
-```bash
-mkdir -p ~/.agents/skills/market-monitoring && cp -r skills/crypto-market-sentinel ~/.agents/skills/market-monitoring/
-```
-
-如果你要把它发到 ClawHub，公开文档支持的发布命令是：
-
-```bash
-npm i -g clawhub && clawhub login && clawhub skill publish ./skills/crypto-market-sentinel --slug <your-skill-slug> --name "OKX Market Sentinel" --version 0.1.0 --tags latest
-```
-
-也可以直接走网页入口：`https://clawhub.ai/publish-skill`
 
 如果你不是只想装 skill，而是想把整套参考实现本地跑起来，再继续下面这些步骤。
 

@@ -97,31 +97,11 @@ pip install requests PyYAML pytest
 
 ## Quick Start
 
-If you only want the shortest install path, use one of these.
+If you only want the shortest install path, start with this Hermes one-liner:
 
-### OpenClaw
-```bash
-openclaw skills install <your-skill-slug>
-```
-
-### Hermes
 ```bash
 mkdir -p ~/.hermes/skills/market-monitoring && cp -r skills/crypto-market-sentinel ~/.hermes/skills/market-monitoring/
 ```
-
-If the skill is not yet published on ClawHub, OpenClaw can still use the local-directory path:
-
-```bash
-mkdir -p ~/.agents/skills/market-monitoring && cp -r skills/crypto-market-sentinel ~/.agents/skills/market-monitoring/
-```
-
-If you want to publish it to ClawHub, the public documented command path is:
-
-```bash
-npm i -g clawhub && clawhub login && clawhub skill publish ./skills/crypto-market-sentinel --slug <your-skill-slug> --name "OKX Market Sentinel" --version 0.1.0 --tags latest
-```
-
-Web publish entry: `https://clawhub.ai/publish-skill`
 
 If you want more than the skill package — for example the dashboard, pipeline, notifier, and tests — continue with the full local setup below.
 
