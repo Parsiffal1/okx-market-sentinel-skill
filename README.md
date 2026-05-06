@@ -19,34 +19,34 @@ This project is not related to official OKX Trading Bot features. If you want of
 If you are not here to read architecture first and just want to know what this project actually sends to a user, start with a realistic notifier-style example.
 
 ```text
-Phase3｜运行完成
-• 状态: 正常
-• 持仓: BTC, ETH
-• 方向偏置: bearish
-• 风险等级: high
-• LLM 唤醒: 是
-• 观察级触发: macro_event_window, held_symbol_pressure
+Phase3 | Run complete
+• Status: normal
+• Holdings: BTC, ETH
+• Bias: bearish
+• Risk level: high
+• LLM wake: yes
+• Observe-only triggers: macro_event_window, held_symbol_pressure
 
-Trigger 判定
-宏观四因子共振 : 已触发
-持仓安全事件   : 无
-持仓事件簇     : 已触发
-LLM 唤醒       : 是
-观察级触发     : macro_event_window, held_symbol_pressure
+Trigger decision
+Macro four-factor confluence : triggered
+Holdings security event      : none
+Holdings event cluster       : triggered
+LLM wake                     : yes
+Observe-only triggers        : macro_event_window, held_symbol_pressure
 
-热度排名
-• 当前列表: BTC, ETH, SOL, DOGE
-• 持仓优先: BTC, ETH
-• 白名单热议: SOL, DOGE
-• OKX持仓异动: ETH, SOL
+Heat ranking
+• Current list: BTC, ETH, SOL, DOGE
+• Holdings priority: BTC, ETH
+• Whitelist social heat: SOL, DOGE
+• OKX open-interest moves: ETH, SOL
 
-持仓风险
-1. BTC ｜ risk=high ｜ events=2 ｜ heat=18 ｜ reasons=macro_event_window, held_symbol_cluster
-2. ETH ｜ risk=medium ｜ events=1 ｜ heat=11 ｜ reasons=oi_change
+Holdings risk
+1. BTC | risk=high | events=2 | heat=18 | reasons=macro_event_window, held_symbol_cluster
+2. ETH | risk=medium | events=1 | heat=11 | reasons=oi_change
 
-热门可交易品种
-1. SOL ｜ 评分=82 ｜ 来源=社媒热议 + OKX持仓异动 ｜ 原因=社媒高热；OI异动靠前
-2. DOGE ｜ 评分=71 ｜ 来源=社媒热议 ｜ 原因=多账户共识
+Top tradeable symbols
+1. SOL | score=82 | source=social heat + OKX open-interest moves | reason=high social heat; leading OI change
+2. DOGE | score=71 | source=social heat | reason=multi-account consensus
 ```
 
 In plain English, that is the product:
