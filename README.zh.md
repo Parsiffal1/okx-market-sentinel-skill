@@ -14,6 +14,48 @@
 
 ---
 
+## 实际运行出来是什么样
+
+如果你不是来研究代码，而是想先知道“这玩意最后会发什么给用户”，可以先看一个真实风格的通知模板。
+
+```text
+Phase3｜运行完成
+• 状态: 正常
+• 持仓: BTC, ETH
+• 方向偏置: bearish
+• 风险等级: high
+• LLM 唤醒: 是
+• 观察级触发: macro_event_window, held_symbol_pressure
+
+Trigger 判定
+宏观四因子共振 : 已触发
+持仓安全事件   : 无
+持仓事件簇     : 已触发
+LLM 唤醒       : 是
+观察级触发     : macro_event_window, held_symbol_pressure
+
+热度排名
+• 当前列表: BTC, ETH, SOL, DOGE
+• 持仓优先: BTC, ETH
+• 白名单热议: SOL, DOGE
+• OKX持仓异动: ETH, SOL
+
+持仓风险
+1. BTC ｜ risk=high ｜ events=2 ｜ heat=18 ｜ reasons=macro_event_window, held_symbol_cluster
+2. ETH ｜ risk=medium ｜ events=1 ｜ heat=11 ｜ reasons=oi_change
+
+热门可交易品种
+1. SOL ｜ 评分=82 ｜ 来源=社媒热议 + OKX持仓异动 ｜ 原因=社媒高热；OI异动靠前
+2. DOGE ｜ 评分=71 ｜ 来源=社媒热议 ｜ 原因=多账户共识
+```
+
+你可以把这个项目简单理解成：
+
+- 平时默默扫市场
+- 先看你手里持仓有没有事
+- 再给你一份当前值得继续盯的标的列表
+- 最后把结果整理成一段 Telegram / agent 能直接消费的消息
+
 ## 入门
 
 ### 先决条件
@@ -55,79 +97,31 @@ pip install requests PyYAML pytest
 
 ## 快速入门
 
-如果你是第一次接这个项目，**最推荐先按 agent 方式接入**，也就是先接进 OpenClaw 或 Hermes，再决定要不要保留整套可运行参考实现。
+如果你只想先装上去，不想看一大堆解释，先看这两行：
 
-### 方案 A：OpenClaw 接入（优先推荐）
-
-如果你已经在用 OpenClaw，最快的路径不是先研究所有脚本，而是先把 skill 装进去。
-
-先安装并初始化 OpenClaw：
-
-```bash
-npm install -g openclaw@latest
-openclaw onboard --install-daemon
-```
-
-然后把仓库拉到本地：
-
-```bash
-git clone https://github.com/Parsiffal1/okx-market-sentinel-skill.git
-cd okx-market-sentinel-skill
-```
-
-把 skill 复制到 OpenClaw 可见的个人 skill 目录：
-
-```bash
-mkdir -p ~/.agents/skills/market-monitoring
-cp -r skills/crypto-market-sentinel ~/.agents/skills/market-monitoring/
-```
-
-重新开一个 OpenClaw 会话后，这个 skill 就可以被发现。
-
-如果你以后把它发布到 ClawHub，OpenClaw 用户就能走真正的一键安装：
-
+### OpenClaw
 ```bash
 openclaw skills install <your-skill-slug>
 ```
 
-目前仓库里已经有 OpenClaw 兼容的 `SKILL.md` 和目录结构；如果你准备发布到 ClawHub，官方公开文档支持的流程是：
-
+### Hermes
 ```bash
-npm i -g clawhub
-clawhub login
-clawhub skill publish ./skills/crypto-market-sentinel \
-  --slug <your-skill-slug> \
-  --name "OKX Market Sentinel" \
-  --version 0.1.0 \
-  --tags latest
+mkdir -p ~/.hermes/skills/market-monitoring && cp -r skills/crypto-market-sentinel ~/.hermes/skills/market-monitoring/
 ```
 
-也可以直接在 ClawHub 页面登录后走发布入口：
-
-- `https://clawhub.ai/publish-skill`
-
-更多 OpenClaw 目录与集成说明见：`OPENCLAW_SETUP.md`
-
-### 方案 B：Hermes 接入（同样推荐）
-
-如果你主要在用 Hermes，最快方式也是先把 skill 放进本地 skills 目录。
+如果这个 skill 还没正式发布到 ClawHub，那么 OpenClaw 先用本地目录方式也可以：
 
 ```bash
-git clone https://github.com/Parsiffal1/okx-market-sentinel-skill.git
-cd okx-market-sentinel-skill
-mkdir -p ~/.hermes/skills/market-monitoring
-cp -r skills/crypto-market-sentinel ~/.hermes/skills/market-monitoring/
+mkdir -p ~/.agents/skills/market-monitoring && cp -r skills/crypto-market-sentinel ~/.agents/skills/market-monitoring/
 ```
 
-这样做的好处是：
+如果你要把它发到 ClawHub，公开文档支持的发布命令是：
 
-- Hermes 先能读到 `SKILL.md`
-- references / templates 也会一起带上
-- 你后面再决定要不要把 dashboard、notifier、pipeline 全部跑起来
+```bash
+npm i -g clawhub && clawhub login && clawhub skill publish ./skills/crypto-market-sentinel --slug <your-skill-slug> --name "OKX Market Sentinel" --version 0.1.0 --tags latest
+```
 
-更多 Hermes 接入方式见：`HERMES_SETUP.md`
-
-### 方案 C：完整本地运行（当你要跑 dashboard / pipeline / notifier 时）
+也可以直接走网页入口：`https://clawhub.ai/publish-skill`
 
 如果你不是只想装 skill，而是想把整套参考实现本地跑起来，再继续下面这些步骤。
 
