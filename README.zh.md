@@ -1,192 +1,496 @@
 [English](README.md) | [中文](README.zh.md)
 
-# Crypto Market Sentinel Skill 仓库
+# OKX 市场哨兵 Skill
 
-这是一个面向 **Hermes**、**OpenClaw 风格 skill** 与普通开发者的 **OKX-first 市场风险哨兵 + 热门可交易品种监控 skill 仓库**。
+## 概述
 
-它不是只有一个 `SKILL.md` 的提示词仓库，而是把：
+这是一个面向 OKX 市场监控与 Agent Skill 工作流的非官方 Python 市场哨兵示例，适用于 OpenClaw、Hermes 等支持 AgentSkills 风格 skill 目录的 agent 系统。
 
-1. **可复用的 skill 层**
-2. **可运行的参考实现层**
+本项目旨在为用户提供一种构建加密市场监控系统的参考方案。该系统能够周期性收集 OKX 市场数据、OKX 新闻、账户/持仓信息、宏观市场数据、加密新闻、社交热度以及语义风险短语，并将这些信息聚合为统一的市场上下文缓存和触发器候选结果。用户可以在此基础上编写自定义监控逻辑、风险规则、通知策略、dashboard 展示逻辑，或将其作为 OpenClaw / Hermes 的外部 skill 使用。
 
-打包在一个仓库里，方便其他用户直接复用、改造和部署。
+本项目不直接提供自动交易、下单、盈利策略、投资建议或任何收益保证。强烈建议用户仅在研究、模拟监控或只读 API 环境中使用。如果接入真实 OKX 账户，请仅使用只读权限 API Key，不建议授予交易权限。
 
-## 这个仓库是什么
+本项目与 OKX 官方交易机器人功能无关。如需使用 OKX 官方提供的网格、DCA、套利等交易机器人，请参考 OKX 官方交易机器人产品。
 
-这个仓库由两层组成：
+---
 
-1. **Skill 层**：位于 `skills/crypto-market-sentinel/`
-2. **参考实现层**：位于 `scripts/`、`dashboard/`、`config/`、`tests/`
+## 入门
 
-也就是说，别人不仅可以读取 skill 指南，还可以直接看到并运行完整实现。
+### 先决条件
 
-## 适合谁使用
+Python 版本：>= 3.10  
+建议使用 Python 虚拟环境运行本项目。
 
-- 想要 **OKX-first 风险哨兵**，而不是完整交易框架的用户
-- 想把市场风险监控能力封装成 **agent skill** 的开发者
-- 需要以下能力的人：
-  - 持仓优先监控
-  - 宏观 + 加密原生风险聚合
-  - 热门可交易品种排名
-  - dashboard + Telegram 汇报
-  - 低 token、cron 友好运行方式
+### Dependencies
 
-## 你能得到什么
+基础依赖：
 
-- Skill 入口：
-  - `skills/crypto-market-sentinel/SKILL.md`
-- Skill 文档：
-  - `skills/crypto-market-sentinel/README.md`
-  - `skills/crypto-market-sentinel/README.zh.md`
-  - `skills/crypto-market-sentinel/references/`
-  - `skills/crypto-market-sentinel/templates/`
-- 可运行的参考实现：
-  - `scripts/`
-  - `dashboard/`
-  - `config/`
-  - `tests/`
-- 项目文档：
-  - `docs/`
+- `python` >= 3.10
+- `requests`
+- `PyYAML`
+- `pytest`
+- `ruff`
 
-## 快速开始
+可选依赖：
 
-### 1. 先读 skill
-建议先看：
+- OKX API Key，只读权限即可
+- `okx` CLI（如果你的本地工作流依赖 OKX 相关命令行集成）
+- `hermes` CLI，用于 Semantic Compass 自动刷新
+- OpenClaw，用于 skill 加载与 agent 集成
+- Telegram Bot Token，用于风险通知推送
 
-- `skills/crypto-market-sentinel/SKILL.md`
+如果仓库中已经提供 `requirements.txt`，请优先使用：
 
-然后再看：
-
-- `skills/crypto-market-sentinel/README.zh.md`
-- `skills/crypto-market-sentinel/references/architecture.md`
-- `skills/crypto-market-sentinel/references/runtime-commands.md`
-
-### 2. 运行参考实现
 ```bash
-python scripts/phase3_pipeline.py
-python scripts/run_phase3_notifier.py
+pip install -r requirements.txt
 ```
 
-### 3. 启动 dashboard
+如果暂未提供完整依赖文件，可先安装最小运行依赖：
+
+```bash
+pip install requests PyYAML pytest
+```
+
+---
+
+## 快速入门
+
+将此项目克隆到您的本地开发环境。点击页面右上角的 “Code” 按钮，然后按照说明操作即可克隆项目。
+
+```bash
+git clone https://github.com/Parsiffal1/okx-market-sentinel-skill.git
+cd okx-market-sentinel-skill
+```
+
+创建并激活 Python 虚拟环境。
+
+macOS / Linux：
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Windows：
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+安装依赖项。
+
+```bash
+pip install -U pip
+pip install -r requirements.txt
+```
+
+如果当前版本暂未提供 `requirements.txt`，可先安装基础依赖：
+
+```bash
+pip install requests PyYAML pytest
+```
+
+检查配置文件。主要配置位于：
+
+```text
+config/phase3_rules.yaml
+config/semantic_compass.json
+skills/crypto-market-sentinel/templates/dashboard_settings.example.json
+```
+
+如需读取 OKX 账户或持仓信息，请在本地环境变量或 `.env` 文件中配置 OKX API 凭据。建议仅使用只读权限 API Key。
+
+```bash
+OKX_API_KEY=<your_api_key>
+OKX_API_SECRET=<your_api_secret>
+OKX_PASSPHRASE=<your_passphrase>
+OKX_IS_PAPER_TRADING=true
+```
+
+如需启用 Telegram 通知，请配置：
+
+```bash
+TELEGRAM_BOT_TOKEN=<your_telegram_bot_token>
+TELEGRAM_CHAT_ID=<your_telegram_chat_id>
+```
+
+运行市场哨兵主流程。
+
+```bash
+python scripts/phase3_pipeline.py
+```
+
+该命令会依次执行数据源抓取、上下文聚合和触发器生成，并将结果写入本地 `context/` 目录。
+
+启动本地 dashboard。
+
 ```bash
 python dashboard/server.py --host 127.0.0.1 --port 8765
 ```
 
-## 兼容性
-
-这个仓库被设计成 **skill + 可运行参考实现** 的混合形态。
-
-- **Hermes**：支持作为本地 skill 使用，也支持完整参考项目运行
-- **OpenClaw 风格 skill 布局**：通过 `skills/crypto-market-sentinel/` 子树与单行 frontmatter 元数据兼容
-- **其他 agent runtime**：更适合手工集成 skill 子目录与仓库根目录脚本
-
-它不是某个单一 runtime 的 in-process 插件 SDK，而是一个可复用 skill 包 + 外部脚本/文档/参考实现。
-
-## 依赖说明
-
-真实运行依赖不止一个 Python 解释器。
-
-### 必需
-- `python`
-- 运行这些脚本所需的 Python 依赖
-
-### 常见 OKX-first 工作流必需
-- `okx` CLI（OKX market / news / positions fetchers 会用到）
-
-### Semantic Compass 刷新必需
-- `hermes` CLI（用于 agent 驱动的语义短语包刷新）
-
-### 可选 / 视环境而定
-- Telegram notifier 所需凭据
-- `OPENNEWS_TOKEN`、`TWITTER_TOKEN`、`OPEN_TOKEN` 等 source token
-- 可访问配置中声明的上游数据源
-
-## 安装方式
-
-### Hermes
-把本仓库 clone 下来，或把 skill 子目录复制到 Hermes skills 目录。
-
-典型目录：
-
-```bash
-~/.hermes/skills/market-monitoring/crypto-market-sentinel/
-```
-
-至少应复制：
-
-- `skills/crypto-market-sentinel/SKILL.md`
-- `skills/crypto-market-sentinel/references/`
-- `skills/crypto-market-sentinel/templates/`
-
-如果你还想要可运行的实现，不要只复制 skill 子目录，而应保留整个仓库。
-
-### OpenClaw 风格 skill 布局
-这个仓库遵循当前流行 skill 仓库的常见结构：
-
-- 根 README
-- `skills/<skill-name>/SKILL.md`
-- 可选 `references/`、`templates/`、额外 setup 文档
-
-后续若要适配 ClawHub / OpenClaw 风格发布，会比较顺滑。
-
-### 手工安装 / 其他 agent
-把 `skills/crypto-market-sentinel/` 看作 skill 包，把仓库根目录看作参考实现。
-
-## 仓库结构
+然后在浏览器中打开：
 
 ```text
-skills/
-  crypto-market-sentinel/
-    SKILL.md
-    README.md
-    README.zh.md
-    references/
-    templates/
-
-dashboard/
-scripts/
-config/
-tests/
-docs/
-README.md
-README.zh.md
+http://127.0.0.1:8765
 ```
 
-## 推荐使用流程
+如果您希望通过 Telegram 接收通知，可以运行：
 
-1. 阅读 `skills/crypto-market-sentinel/SKILL.md`
-2. 阅读 `skills/crypto-market-sentinel/references/`
-3. 查看 `scripts/` 与 `dashboard/` 里的参考实现
-4. 运行 `pytest -q`
-5. 运行 `python scripts/phase3_pipeline.py`
-6. 按自己的环境替换数据源、通知与 dashboard 部署方式
+```bash
+python scripts/run_phase3_notifier.py
+```
 
-## 我应该先看哪个文件？
+如果您希望使用 Hermes 帮助刷新 Semantic Compass，可以运行：
 
-- 只想看 skill 契约 → `skills/crypto-market-sentinel/SKILL.md`
-- 想看安装说明 → `skills/crypto-market-sentinel/README.zh.md`
-- 想看架构总览 → `skills/crypto-market-sentinel/references/architecture.md`
-- 想看运行命令 → `skills/crypto-market-sentinel/references/runtime-commands.md`
-- 想看真正实现 → `scripts/`、`dashboard/`、`config/`
+```bash
+python scripts/semantic_compass.py
+```
 
-## 项目状态与范围
-
-这个仓库 **不是**：
-
-- 自动下单交易框架
-- 完整量化平台
-- 通用执行引擎
-
-它 **是**：
-
-> 一个 OKX-first 的市场风险哨兵 + 热门可交易品种监控 skill，并且附带可运行的参考实现。
-
-## 测试
+运行测试：
 
 ```bash
 pytest -q
 ```
 
-## 许可证
+---
 
-本仓库采用 MIT License，见 `LICENSE`。
+## 监控对象及运行模式
+
+本项目默认不执行交易，也不会自动下单。它的核心用途是市场监控、风险识别、上下文聚合和 agent 触发器生成。
+
+### Local Pipeline Mode
+
+本地管线模式会读取配置文件，抓取多个数据源，并生成统一的市场上下文文件。
+
+```bash
+python scripts/phase3_pipeline.py
+```
+
+主要输出：
+
+```text
+context/context_cache.json
+context/trigger_candidates.json
+reports/
+```
+
+### Dashboard Mode
+
+Dashboard 模式会启动一个本地 HTTP 服务，用于展示市场状态、风险摘要、触发器候选结果和配置状态。
+
+```bash
+python dashboard/server.py --host 127.0.0.1 --port 8765
+```
+
+默认建议只绑定 `127.0.0.1`。如果需要暴露到局域网或公网，请自行添加鉴权、反向代理和访问控制。
+
+### Telegram Notifier Mode
+
+通知模式会运行市场哨兵流程，并在检测到重要变化时推送 Telegram 消息。
+
+```bash
+python scripts/run_phase3_notifier.py
+```
+
+该模式适合定时任务、cron job 或长期运行的轻量监控环境。
+
+### Agent Skill Mode
+
+本项目包含：
+
+```text
+skills/crypto-market-sentinel/SKILL.md
+skills/crypto-market-sentinel/references/
+skills/crypto-market-sentinel/templates/
+```
+
+可作为 OpenClaw / Hermes 等 agent 的 skill 目录使用。Agent 可以读取 `SKILL.md`，根据 references 中的说明理解如何运行市场哨兵、查看 dashboard、读取 context cache 或解释 trigger candidates。
+
+Hermes 示例安装路径：
+
+```bash
+mkdir -p ~/.hermes/skills/market-monitoring
+cp -r skills/crypto-market-sentinel ~/.hermes/skills/market-monitoring/
+```
+
+OpenClaw 用户可参考：
+
+```text
+OPENCLAW_SETUP.md
+```
+
+Hermes 用户可参考：
+
+```text
+HERMES_SETUP.md
+```
+
+### Semantic Compass Mode
+
+Semantic Compass 用于维护风险语义短语包，例如地缘风险、交易所风险、监管风险、重大新闻风险和降温短语等。
+
+配置文件位于：
+
+```text
+config/semantic_compass.json
+```
+
+运行刷新：
+
+```bash
+python scripts/semantic_compass.py
+```
+
+该模式适合让 agent 根据最新市场语言和新闻语境，持续调整风险匹配短语。
+
+---
+
+## Compatibility
+
+这个仓库当前主要面向以下几类使用方式：
+
+- **Hermes**：可以作为本地 skill + 可运行参考实现直接使用
+- **OpenClaw**：可以作为 skill 目录接入，并按仓库中的说明进行集成
+- **其他 agent runtime**：可以参考本仓库的结构、脚本与配置，自行适配
+
+它不是某个单一 runtime 的官方插件，而是一个更偏向可复用、可改造的市场监控 skill 仓库。
+
+---
+
+## 配置说明
+
+### phase3_rules.yaml
+
+`config/phase3_rules.yaml` 存储主要市场哨兵规则，包括：
+
+- 数据过期时间
+- 事件窗口
+- 风险关键词
+- 新闻风险阈值
+- 社交热度阈值
+- 市场上下文阈值
+- 触发器生成规则
+
+用户可以根据自己的交易品种、风险偏好和监控目标修改这些参数。
+
+### semantic_compass.json
+
+`config/semantic_compass.json` 存储语义风险短语包，包括：
+
+- `geo_risk`
+- `news_risk`
+- `regulatory_risk`
+- `exchange_risk`
+- cooldown phrases
+- severity anchors
+
+该文件用于帮助系统识别新闻和文本中的风险语义，而不只是依赖固定关键词。
+
+### dashboard_settings.example.json
+
+Dashboard 设置模板位于：
+
+```text
+skills/crypto-market-sentinel/templates/dashboard_settings.example.json
+```
+
+建议复制为本地设置文件后再修改，避免直接改动模板文件。
+
+---
+
+## 输出
+
+运行主流程后，终端可能输出类似内容：
+
+```text
+RUN SOURCE okx_market_fetch ... OK
+RUN SOURCE okx_news_fetch ... OK
+RUN SOURCE okx_positions_fetch ... OK
+RUN SOURCE macro_fetch ... OK
+RUN SOURCE crypto_news_fetch ... OK
+RUN SOURCE social_heat_fetch ... OK
+
+BUILD CONTEXT CACHE
+context/context_cache.json written
+
+BUILD TRIGGER CANDIDATES
+context/trigger_candidates.json written
+
+==== Market Sentinel Summary ====
+Time: 2026-05-05 14:37:21
+Mode: local pipeline
+Primary Exchange: OKX
+Market State: neutral
+Macro Risk: medium
+Crypto News Risk: medium
+Geo Risk: low
+Social Heat: elevated
+
+Watched Instruments:
+- BTC-USDT-SWAP
+- ETH-USDT-SWAP
+- SOL-USDT-SWAP
+
+Hot Symbols:
+1. BTC
+2. ETH
+3. SOL
+4. DOGE
+5. XRP
+
+Wake Triggers: 2
+Observe Only Triggers: 5
+Context Cache: context/context_cache.json
+Trigger Candidates: context/trigger_candidates.json
+==== End of Summary ====
+
+WAKE BTC-USDT-SWAP
+Reason: market volatility increased while related news risk is medium
+
+OBSERVE_ONLY ETH-USDT-SWAP
+Reason: price movement is notable but risk score is below wake threshold
+```
+
+启动 dashboard 后，终端可能输出：
+
+```text
+Serving dashboard at http://127.0.0.1:8765
+GET /api/dashboard
+GET /api/context
+GET /api/triggers
+```
+
+运行 Telegram notifier 后，可能输出：
+
+```text
+RUNNING PHASE3 PIPELINE
+LOADING PREVIOUS SNAPSHOT
+BUILDING CHANGE SUMMARY
+SENDING TELEGRAM MESSAGE
+NOTIFIER DONE
+```
+
+---
+
+## 项目结构
+
+```text
+okx-market-sentinel-skill/
+├── config/
+│   ├── phase3_rules.yaml
+│   └── semantic_compass.json
+├── dashboard/
+│   ├── server.py
+│   └── dashboard_adapter.py
+├── docs/
+├── scripts/
+│   ├── phase3_pipeline.py
+│   ├── build_context_cache.py
+│   ├── build_triggers.py
+│   ├── run_phase3_notifier.py
+│   ├── semantic_compass.py
+│   └── sources/
+├── skills/
+│   └── crypto-market-sentinel/
+│       ├── SKILL.md
+│       ├── references/
+│       └── templates/
+├── tests/
+├── HERMES_SETUP.md
+├── OPENCLAW_SETUP.md
+├── README.md
+└── README.zh.md
+```
+
+---
+
+## 安全说明
+
+请勿将以下内容提交到 GitHub：
+
+```text
+.env
+OKX API Key
+Telegram Bot Token
+context/
+reports/
+本地缓存文件
+账户持仓文件
+```
+
+建议：
+
+- OKX API Key 只开启只读权限
+- 不要给本项目授予交易权限
+- 不要在公网直接暴露 dashboard
+- 如果必须暴露 dashboard，请添加鉴权和反向代理
+- 不要把真实账户截图、持仓、API 凭据写入 issue 或 commit
+- 定期检查 `.gitignore` 和 `.clawhubignore`
+
+更多安全信息可参考 `SECURITY.md`。
+
+---
+
+## 测试
+
+运行全部测试：
+
+```bash
+pytest -q
+```
+
+运行单个测试文件：
+
+```bash
+pytest tests/test_phase3_pipeline.py -q
+pytest tests/test_dashboard_server.py -q
+pytest tests/test_semantic_compass.py -q
+```
+
+建议在提交代码前运行：
+
+```bash
+pytest -q
+ruff check .
+```
+
+---
+
+## 使用场景
+
+本项目适合以下场景：
+
+- 构建加密市场风险监控系统
+- 为 OpenClaw / Hermes 提供市场监控 skill
+- 聚合 OKX 市场数据与外部新闻数据
+- 生成 agent 可读取的 context cache
+- 生成 wake / observe_only 类型触发器
+- 构建 Telegram 风险提醒
+- 构建本地 dashboard
+- 研究 agent 如何参与交易前的信息收集与风险判断
+
+本项目不适合以下场景：
+
+- 直接自动下单
+- 高频交易
+- 做市执行
+- 资金托管
+- 无人工监督的真实账户交易
+- 任何保证收益的交易系统
+
+---
+
+## 声明
+
+本项目是非官方项目，与 OKX 官方无直接关系。
+
+本项目仅用于展示、研究和开发 agent skill 工作流，不构成投资建议、交易建议或金融服务。本项目不保证数据完整性、实时性、准确性，也不保证任何交易收益。
+
+使用者应自行评估市场风险、API 权限风险、系统故障风险和信息延迟风险。任何基于本项目产生的交易、投资或账户操作，均由使用者自行承担责任。
+
+---
+
+## License
+
+本仓库使用 MIT License。详见 `LICENSE`。
