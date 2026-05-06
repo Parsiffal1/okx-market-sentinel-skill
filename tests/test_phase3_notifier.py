@@ -122,7 +122,7 @@ def test_build_notification_message_summarizes_phase3_result():
         report_path=str(Path(__file__).resolve().parents[1] / "reports" / "phase3_user_report_test.md"),
     )
 
-    assert '<b>Phase3｜运行完成</b>' in message
+    assert '<b>OKX 市场哨兵｜运行完成</b>' in message
     assert '• 持仓: <code>BTC</code>' in message
     assert '• 方向偏置: <code>bearish</code>' in message
     assert '• 风险等级: <code>high</code>' in message
@@ -544,11 +544,11 @@ def test_build_notification_message_stays_compact_in_no_change_mode():
         pipeline_result,
         context,
         triggers,
-        change_summary={'has_changes': False, 'lines': ['Phase3｜本轮无重要变化']},
+        change_summary={'has_changes': False, 'lines': ['OKX 市场哨兵｜本轮无重要变化']},
         report_path=str(Path(__file__).resolve().parents[1] / "reports" / "phase3_user_report_test.md"),
     )
 
-    assert '<b>Phase3｜本轮无重要变化</b>' in message
+    assert '<b>OKX 市场哨兵｜本轮无重要变化</b>' in message
     assert '宏观/地缘变化:' not in message
     assert '美股风险情绪:' not in message
     assert '安全事件:' not in message

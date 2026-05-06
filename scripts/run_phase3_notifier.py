@@ -438,7 +438,7 @@ def build_notification_message(
 
     if change_summary and not change_summary.get('has_changes'):
         return '\n'.join([
-            html_bold('Phase3｜本轮无重要变化'),
+            html_bold('OKX 市场哨兵｜本轮无重要变化'),
             f'持仓: {html_code(holdings)}',
             f'方向/风险: {html_code(regime_bias + " / " + risk_state)}',
             f'观察级触发: {html_code(observe_types)}',
@@ -446,7 +446,7 @@ def build_notification_message(
         ])
 
     lines = [
-        html_bold('Phase3｜运行完成'),
+        html_bold('OKX 市场哨兵｜运行完成'),
         f"• 状态: {html_code('正常' if status_ok else '异常')}",
         f'• 持仓: {html_code(holdings)}',
         f'• 方向偏置: {html_code(regime_bias)}',

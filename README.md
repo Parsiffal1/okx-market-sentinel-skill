@@ -19,7 +19,7 @@ This project is not related to official OKX Trading Bot features. If you want of
 If you are not here to read architecture first and just want to know what this project actually sends to a user, start with a realistic notifier-style example.
 
 ```text
-Phase3 | Run complete
+OKX Market Sentinel | Run complete
 • Status: normal
 • Holdings: BTC, ETH
 • Bias: bearish
