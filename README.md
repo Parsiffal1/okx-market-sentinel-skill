@@ -60,9 +60,9 @@ In plain English, that is the product:
 
 If you would rather see what the finished product looks like before reading the code, start with these two screenshots:
 
+![OKX Market Sentinel dashboard screenshot 2](docs/assets/dashboard-screenshot-2.jpg)
 ![OKX Market Sentinel dashboard screenshot 1](docs/assets/dashboard-screenshot-1.jpg)
 
-![OKX Market Sentinel dashboard screenshot 2](docs/assets/dashboard-screenshot-2.jpg)
 
 ## Getting Started
 
