@@ -60,9 +60,9 @@ LLM 唤醒       : 是
 
 如果你更想先看成品长什么样，而不是先读代码，可以先看这两张图：
 
+![OKX 市场哨兵看板截图 2](docs/assets/dashboard-screenshot-2.jpg)
 ![OKX 市场哨兵看板截图 1](docs/assets/dashboard-screenshot-1.jpg)
 
-![OKX 市场哨兵看板截图 2](docs/assets/dashboard-screenshot-2.jpg)
 
 ## 入门
 
