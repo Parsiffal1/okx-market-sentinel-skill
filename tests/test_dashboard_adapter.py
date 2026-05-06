@@ -117,6 +117,15 @@ def test_build_dashboard_payload_returns_summary_hot_symbols_and_quadrants():
     assert payload['hot_symbols'][1]['asset_class'] == 'us_equity'
     assert payload['quadrants']['oi_up_price_up'][0]['symbol'] == 'TON'
     assert payload['news']['security'][0]['source'] == 'okx_news'
+    assert payload['hot_symbols_meta']['asset_class_counts']['crypto'] == 1
+    assert payload['hot_symbols_meta']['asset_class_counts']['us_equity'] == 1
+    assert payload['hot_symbols_meta']['source_counts']['CMC趋势'] == 1
+    assert payload['hot_symbols_meta']['source_counts']['OKX持仓异动'] == 1
+    assert payload['quadrant_counts']['oi_up_price_up'] == 1
+    assert payload['news_counts']['high_impact'] == 1
+    assert payload['holdings_meta']['has_positions'] is True
+    assert payload['holdings_meta']['held_symbol_count'] == 2
+    assert payload['holdings_meta']['highest_risk_state'] == 'high'
 
 
 def test_humanize_source_and_reason_labels_are_user_readable():

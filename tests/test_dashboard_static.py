@@ -25,3 +25,16 @@ def test_dashboard_static_prioritizes_holdings_panel_before_hot_symbols():
     holdings_pos = content.index('holdings-priority-panel')
     hot_symbols_pos = content.index('hot-symbols-panel')
     assert holdings_pos < hot_symbols_pos
+
+
+def test_dashboard_static_contains_new_visualization_sections_for_richer_dark_dashboard():
+    content = (Path(__file__).resolve().parents[1] / "dashboard/static/index.html").read_text(encoding='utf-8')
+
+    assert 'dashboard-sidebar' in content
+    assert 'welcome-hero-card' in content
+    assert 'sentiment-gauge-panel' in content
+    assert 'wake-banner-panel' in content
+    assert 'holdings-scatter-panel' in content
+    assert 'source-composition-panel' in content
+    assert 'high-impact-news-panel' in content
+    assert 'score-bar-panel' in content

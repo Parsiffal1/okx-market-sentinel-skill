@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from typing import Any
 
 
@@ -118,10 +119,65 @@ def normalize_news(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return rows
 
 
+def summarize_hot_symbols_meta(hot_symbols: list[dict[str, Any]]) -> dict[str, Any]:
+    asset_class_counts: Counter[str] = Counter()
+    source_counts: Counter[str] = Counter()
+    reason_counts: Counter[str] = Counter()
+    score_series: list[dict[str, Any]] = []
+    for item in hot_symbols:
+        asset_class_counts.update([str(item.get('asset_class') or 'unknown')])
+        source_counts.update(render_source_summary(item.get('raw_sources', [])).split(' + ') if item.get('raw_sources') else [])
+        reason_counts.update(render_reason_summary(item.get('raw_reasons', [])).split('；') if item.get('raw_reasons') else [])
+        score_series.append({
+            'symbol': item.get('symbol'),
+            'score': int(item.get('score', 0) or 0),
+            'asset_class': item.get('asset_class'),
+        })
+    return {
+        'asset_class_counts': dict(asset_class_counts),
+        'source_counts': dict(source_counts),
+        'reason_counts': dict(reason_counts),
+        'score_series': score_series,
+    }
+
+
+def summarize_holdings_meta(holdings_state: dict[str, Any]) -> dict[str, Any]:
+    symbol_risk = holdings_state.get('symbol_risk', []) or []
+    risk_order = {'extreme': 4, 'high': 3, 'medium': 2, 'low': 1}
+    highest_risk = 'unknown'
+    highest_score = -1
+    total_events = 0
+    total_social_heat = 0
+    for row in symbol_risk:
+        current_risk = str(row.get('risk_state') or 'unknown').strip().lower()
+        current_score = risk_order.get(current_risk, 0)
+        if current_score > highest_score:
+            highest_score = current_score
+            highest_risk = current_risk
+        total_events += int(row.get('relevant_event_count', 0) or 0)
+        total_social_heat += int(row.get('relevant_social_heat', 0) or 0)
+    return {
+        'has_positions': bool(holdings_state.get('has_positions')),
+        'held_symbol_count': len([symbol for symbol in (holdings_state.get('prioritized_symbols') or []) if str(symbol).strip()]),
+        'highest_risk_state': highest_risk,
+        'total_relevant_event_count': total_events,
+        'total_social_heat': total_social_heat,
+    }
+
+
+def summarize_news_counts(news: dict[str, list[dict[str, Any]]]) -> dict[str, int]:
+    return {key: len(value or []) for key, value in (news or {}).items()}
+
+
+def summarize_quadrant_counts(quadrants: dict[str, list[dict[str, Any]]]) -> dict[str, int]:
+    return {key: len(value or []) for key, value in (quadrants or {}).items()}
+
+
 def build_dashboard_payload(context: dict[str, Any], triggers: dict[str, Any], settings: dict[str, Any]) -> dict[str, Any]:
     macro = context.get('macro', {}) or {}
     market_state = context.get('market_state', {}) or {}
     health = context.get('health', {}) or {}
+    holdings_state = context.get('holdings_state', {}) or {}
     raw_hot = context.get('hot_symbols_state', {}).get('top_tradeable_symbols', []) or []
     hot_symbols: list[dict[str, Any]] = []
     for item in raw_hot:
@@ -140,6 +196,15 @@ def build_dashboard_payload(context: dict[str, Any], triggers: dict[str, Any], s
             'raw_sources': sources,
             'raw_reasons': reasons,
         })
+
+    quadrants = group_quadrants(hot_symbols)
+    news = {
+        'macro_geo': normalize_news([{'title': item, 'source': 'macro_summary'} for item in (macro.get('summary_buckets', {}) or {}).get('geo', [])]),
+        'us_equity': normalize_news([{'title': item, 'source': 'macro_summary'} for item in (macro.get('summary_buckets', {}) or {}).get('us_equity_sentiment', [])]),
+        'security': normalize_news((context.get('crypto_news', {}) or {}).get('security_events', []) or []),
+        'watchlist': normalize_news((context.get('crypto_news', {}) or {}).get('watchlist_events', []) or []),
+        'high_impact': normalize_news((context.get('crypto_news', {}) or {}).get('high_impact_events', []) or []),
+    }
 
     payload = {
         'generated_at': context.get('generated_at'),
@@ -161,16 +226,14 @@ def build_dashboard_payload(context: dict[str, Any], triggers: dict[str, Any], s
             'health_overview': build_health_overview(health),
         },
         'market_state': market_state,
-        'holdings_state': context.get('holdings_state', {}) or {},
+        'holdings_state': holdings_state,
+        'holdings_meta': summarize_holdings_meta(holdings_state),
         'hot_symbols': hot_symbols,
-        'quadrants': group_quadrants(hot_symbols),
-        'news': {
-            'macro_geo': normalize_news([{'title': item, 'source': 'macro_summary'} for item in (macro.get('summary_buckets', {}) or {}).get('geo', [])]),
-            'us_equity': normalize_news([{'title': item, 'source': 'macro_summary'} for item in (macro.get('summary_buckets', {}) or {}).get('us_equity_sentiment', [])]),
-            'security': normalize_news((context.get('crypto_news', {}) or {}).get('security_events', []) or []),
-            'watchlist': normalize_news((context.get('crypto_news', {}) or {}).get('watchlist_events', []) or []),
-            'high_impact': normalize_news((context.get('crypto_news', {}) or {}).get('high_impact_events', []) or []),
-        },
+        'hot_symbols_meta': summarize_hot_symbols_meta(hot_symbols),
+        'quadrants': quadrants,
+        'quadrant_counts': summarize_quadrant_counts(quadrants),
+        'news': news,
+        'news_counts': summarize_news_counts(news),
         'health': health,
         'wake_state': triggers.get('wake_state', {}) or {},
     }
