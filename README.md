@@ -68,7 +68,7 @@ Top tradeable symbols
 
 If you want to see the product before reading the code, start here:
 
-<img width="2549" height="9012" alt="image" src="https://github.com/user-attachments/assets/e1bcad4f-05ca-4b66-98be-f4db9b923d1f" />
+<img width="5549" height="9012" alt="image" src="https://github.com/user-attachments/assets/e1bcad4f-05ca-4b66-98be-f4db9b923d1f" />
 
 
 ## Core Features
