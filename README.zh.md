@@ -68,8 +68,7 @@ OKX 市场哨兵｜扫描完成
 
 如果你想先看成品，而不是先读代码，可以直接看这里：
 
-![OKX 市场哨兵看板截图 2](docs/assets/dashboard-screenshot-2.jpg)
-![OKX 市场哨兵看板截图 1](docs/assets/dashboard-screenshot-1.jpg)
+<img width="2560" height="5960" alt="image" src="https://github.com/user-attachments/assets/8c2545a2-14c3-4718-89dc-cc83cc5f59e6" />
 
 ## 核心功能
 
