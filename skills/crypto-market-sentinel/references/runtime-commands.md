@@ -23,8 +23,10 @@ python scripts/run_phase3_notifier.py
 ## Dashboard
 
 ```bash
-python dashboard/server.py --host 0.0.0.0 --port 8765
+python dashboard/server.py --host 127.0.0.1 --port 8765
 ```
+
+Use `127.0.0.1` as the safe default. Only switch to `0.0.0.0` when you intentionally expose the dashboard behind your own access controls.
 
 ## Semantic Compass
 

@@ -2,41 +2,41 @@
 
 # Crypto Market Sentinel Skill
 
-This directory is the **skill package** for the Crypto Market Sentinel project.
+This directory contains the **reusable skill package** for the OKX Market Sentinel project.
 
-If you only need the reusable skill guidance, start here. If you also want the runnable code, go back to the repository root and inspect `scripts/`, `dashboard/`, `config/`, and `tests/`.
+If you only want the agent-facing guidance, start here. If you also want the runnable implementation, go back to the repository root and use the main README.
 
-## What this skill helps with
+## What this skill is for
 
-- holdings-first market monitoring
-- OKX-first tradeable symbol ranking
-- macro + crypto-native risk aggregation
-- dashboard + Telegram reporting flows
-- cron-friendly, low-token operation
-- semantic phrase-pack maintenance via **Semantic Compass**
+Use this skill when you want an agent to help with:
+
+- operating the Phase3 monitoring pipeline
+- auditing holdings-first risk logic
+- understanding hot-symbol ranking outputs
+- running or debugging the dashboard and notifier flow
+- maintaining Semantic Compass phrase packs
+- packaging the project into another agent environment
 
 ## Key files
 
-- `SKILL.md` — main operator contract
-- `references/architecture.md` — system design summary
-- `references/runtime-commands.md` — common run / test / dashboard commands
-- `templates/dashboard_settings.example.json` — starter dashboard settings
+- `SKILL.md` — the primary operating contract
+- `references/architecture.md` — architecture and system layering
+- `references/runtime-commands.md` — canonical run, test, and dashboard commands
+- `templates/dashboard_settings.example.json` — dashboard settings starter template
 
-## Intended usage
+## Relationship to the full repository
 
-Use this skill when you want to:
-
-- adapt the sentinel to another environment
-- audit risk logic and wake conditions
-- deploy the dashboard and notifier stack
-- package the project as an agent skill instead of a one-off script pile
-
-## If you also want the full code
-
-Go to repo root and inspect:
+This skill package is only one part of the project. The runnable reference implementation lives at repo root:
 
 - `scripts/`
 - `dashboard/`
 - `config/`
-- `tests/`
 - `docs/`
+- `tests/`
+
+## Recommended reading order
+
+1. `SKILL.md`
+2. `references/runtime-commands.md`
+3. `references/architecture.md`
+4. repo root `README.md` / `README.zh.md` when you need full-project onboarding

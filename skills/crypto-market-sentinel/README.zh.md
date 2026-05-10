@@ -2,41 +2,41 @@
 
 # Crypto Market Sentinel Skill
 
-这个目录是 Crypto Market Sentinel 项目的 **skill 包**。
+这个目录是 OKX 市场哨兵项目中**可复用的 skill 包**。
 
-如果你只想复用 skill 指导，从这里开始即可；如果你还想要完整可运行代码，请回到仓库根目录查看 `scripts/`、`dashboard/`、`config/`、`tests/`。
+如果你只想看 agent 侧的操作指导，从这里开始即可；如果你还想把整套参考实现跑起来，请回到仓库根目录阅读主 README。
 
-## 这个 skill 能帮助你做什么
+## 这个 skill 适合做什么
 
-- 持仓优先市场监控
-- OKX-first 热门可交易品种排名
-- 宏观 + 加密原生风险聚合
-- dashboard + Telegram 汇报流程
-- cron 友好、低 token 运行方式
-- 基于 **Semantic Compass** 的语义短语包维护
+当你希望 agent 协助以下事项时，使用这个 skill：
+
+- 运行 Phase3 市场监控主流程
+- 审查持仓优先的风险逻辑
+- 理解热度排名产物与触发结果
+- 启动或排查 dashboard / notifier 流程
+- 维护 Semantic Compass 风险短语包
+- 将项目打包迁移到其他 agent 环境
 
 ## 关键文件
 
-- `SKILL.md` — 主 skill 契约
-- `references/architecture.md` — 系统设计总览
-- `references/runtime-commands.md` — 常用运行 / 测试 / dashboard 命令
-- `templates/dashboard_settings.example.json` — dashboard 设置模板
+- `SKILL.md` — 主操作契约
+- `references/architecture.md` — 架构分层与系统说明
+- `references/runtime-commands.md` — 标准运行、测试、dashboard 命令
+- `templates/dashboard_settings.example.json` — dashboard 配置模板
 
-## 适用场景
+## 它和完整仓库的关系
 
-当你想做这些事情时，使用这个 skill：
-
-- 把风险哨兵适配到自己的环境
-- 审查风险模型与唤醒条件
-- 部署 dashboard / notifier 栈
-- 把项目整理成 agent skill，而不是一堆零散脚本
-
-## 如果你还要完整代码
-
-回到仓库根目录，重点查看：
+这个 skill 目录只是项目的一部分；真正可运行的参考实现还在仓库根目录：
 
 - `scripts/`
 - `dashboard/`
 - `config/`
-- `tests/`
 - `docs/`
+- `tests/`
+
+## 推荐阅读顺序
+
+1. `SKILL.md`
+2. `references/runtime-commands.md`
+3. `references/architecture.md`
+4. 需要完整上手时再看仓库根目录 `README.md` / `README.zh.md`

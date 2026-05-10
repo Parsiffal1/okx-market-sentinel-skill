@@ -2,21 +2,36 @@
 
 # OKX Market Sentinel Skill
 
-## Overview
+A production-oriented **OKX-first market monitoring and risk-sentinel skill repository** that combines a reusable agent skill package with a runnable Python reference implementation.
 
-This is an unofficial Python market sentinel example for OKX market monitoring and Agent Skill workflows. It is intended for agent systems such as OpenClaw and Hermes that support AgentSkills-style skill directories.
+## Project Overview
 
-This project is meant to provide a reference approach for building a crypto market monitoring system. The system can periodically collect OKX market data, OKX news, account and positions data, macro market data, crypto news, social heat, and semantic risk phrases, then aggregate them into a unified market context cache and trigger candidates. On top of that, users can build custom monitoring logic, risk rules, notification strategies, dashboard views, or use the project as an external skill for OpenClaw / Hermes.
+OKX Market Sentinel is built for one job: **continuously turn scattered market, holdings, news, and social signals into a readable monitoring view that an operator or agent can act on**.
 
-This project does not directly provide automated trading, order execution, profitable strategies, investment advice, or any return guarantee. It is strongly recommended to use it only for research, simulated monitoring, or read-only API environments. If you connect a real OKX account, use read-only API keys only and do not grant trading permissions.
+It is designed for teams or individuals who want more than a script that fetches one API endpoint, but less than a full auto-trading system. The repository focuses on:
 
-This project is not related to official OKX Trading Bot features. If you want official OKX products such as Grid, DCA, or arbitrage bots, please refer to OKX's official Trading Bot offerings.
+- multi-source market context collection
+- holdings-first risk inspection
+- hot tradeable symbol ranking across OKX contract-tradable instruments
+- Telegram-friendly reporting
+- agent-skill packaging for Hermes and OpenClaw
 
----
+This repository **does not** execute trades, place orders, promise returns, or provide investment advice. If you connect a real OKX account, use **read-only** credentials only.
 
-## What the output actually looks like
+## What problem this project solves
 
-If you are not here to read architecture first and just want to know what this project actually sends to a user, start with a realistic notifier-style example.
+Most market-monitoring prototypes stop at raw data collection. They fetch prices or headlines, but they do not answer the operational questions that matter:
+
+- *Do my current holdings need attention right now?*
+- *Is today’s risk coming from macro headlines, crypto-native incidents, or exchange positioning?*
+- *Which OKX-tradable symbols are actually worth watching next?*
+- *How do I package the result into a message an operator can read in seconds?*
+
+OKX Market Sentinel addresses that gap by building a structured Phase3 pipeline that aggregates source data into unified artifacts, then derives notifier-ready summaries, trigger candidates, and dashboard payloads.
+
+## What the output looks like
+
+A typical user-facing summary looks like this:
 
 ```text
 OKX Market Sentinel | Scan complete
@@ -49,499 +64,245 @@ Top tradeable symbols
 2. DOGE | score=71 | source=social momentum | why=multi-account consensus
 ```
 
-In plain English, that is the product:
-
-- it keeps scanning the market in the background
-- it checks your current holdings first
-- it surfaces the tradeable symbols worth watching next
-- it packages the result into a Telegram / agent-friendly message
-
 ## Dashboard Preview
 
-If you would rather see what the finished product looks like before reading the code, start with these two screenshots:
+If you want to see the product before reading the code, start here:
 
 ![OKX Market Sentinel dashboard screenshot 2](docs/assets/dashboard-screenshot-2.jpg)
 ![OKX Market Sentinel dashboard screenshot 1](docs/assets/dashboard-screenshot-1.jpg)
 
+## Core Features
 
-## Getting Started
+- [x] **Phase3 pipeline** for source collection, context aggregation, and trigger generation
+- [x] **Holdings-first risk view** that checks current exposure before surfacing new opportunities
+- [x] **OKX-first hot-symbol ranking** across contract-tradable instruments, not just spot crypto coins
+- [x] **Macro + crypto-native event aggregation** so exchange incidents and market structure shifts are not lost inside generic news flow
+- [x] **Telegram notifier flow** for concise operational briefs
+- [x] **Local dashboard** for inspecting market state, trigger state, and ranking outputs
+- [x] **Reusable skill package** under `skills/crypto-market-sentinel/` for Hermes / OpenClaw style agent runtimes
+- [x] **Semantic Compass maintenance flow** for updating the phrase packs that drive risk extraction and event tagging
 
-### Prerequisites
+## Tech Stack
 
-Python version: >= 3.10  
-It is recommended to run this project inside a Python virtual environment.
+- **Language:** Python 3.10+
+- **Project shape:** runnable reference implementation + reusable agent skill package
+- **Agent integration:** Hermes and OpenClaw compatible skill-directory layout
+- **Decision style:** artifact-first, rules-first monitoring with optional agent-assisted semantic maintenance
+- **Core libraries:** `requests`, `PyYAML`, `mcp`
+- **Quality tooling:** `pytest`, `ruff`
+- **External systems / APIs:** OKX data interfaces, Telegram Bot API, Jin10 MCP, crypto-news and social-source integrations configured by environment variables
 
-## Dependencies
+## Compatibility
 
-Core dependencies:
+This repository is designed to be usable in two ways:
 
-- `python` >= 3.10
-- `requests`
-- `PyYAML`
-- `pytest`
-- `ruff`
+1. **As a runnable Python project** for local monitoring, dashboard serving, and notifier execution
+2. **As a skill repository** for agent runtimes such as **Hermes** and **OpenClaw**
 
-Optional dependencies:
+The reusable skill package lives under:
 
-- OKX API keys with read-only permission
-- `okx` CLI if your local workflow depends on OKX-related command-line integrations
-- `hermes` CLI for automatic Semantic Compass refresh
-- OpenClaw for skill loading and agent integration
-- Telegram Bot Token for risk notifications
-
-If the repository already includes a `requirements.txt`, use it first:
-
-```bash
-pip install -r requirements.txt
+```text
+skills/crypto-market-sentinel/
 ```
-
-If a complete dependency file is not available in the current version, you can start with the minimum runtime dependencies:
-
-```bash
-pip install requests PyYAML pytest
-```
-
----
 
 ## Quick Start
 
-If you only want the shortest install path, start with this Hermes one-liner:
+### Environment Requirements
+
+- Python 3.10+
+- Network access for the data sources you plan to use
+- Optional: OKX read-only credentials
+- Optional: Telegram bot credentials
+- Optional: Hermes / OpenClaw if you want to load the packaged skill directly
+
+### Installation
+
+Install dependencies:
 
 ```bash
-mkdir -p ~/.hermes/skills/market-monitoring && cp -r skills/crypto-market-sentinel ~/.hermes/skills/market-monitoring/
-```
-
-If you want more than the skill package — for example the dashboard, pipeline, notifier, and tests — continue with the full local setup below.
-
-Create and activate a Python virtual environment.
-
-macOS / Linux:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-Windows:
-
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-```
-
-Install dependencies.
-
-```bash
-pip install -U pip
 pip install -r requirements.txt
 ```
 
-If the current version does not yet provide `requirements.txt`, you can install the basic dependencies first:
+### Configure API Keys
+
+Create a local environment file:
 
 ```bash
-pip install requests PyYAML pytest
+cp .env.example .env
 ```
 
-Check the configuration files. The main configuration paths are:
+Then edit `.env` and fill in only the keys you actually need. The current pipeline usually expects **local OKX CLI/profile access** for exchange data, while these environment variables are used for notifier delivery and optional upstream integrations:
 
-```text
-config/phase3_rules.yaml
-config/semantic_compass.json
-skills/crypto-market-sentinel/templates/dashboard_settings.example.json
-```
-
-If you want to read OKX account or positions data, configure your OKX API credentials in local environment variables or a `.env` file. Read-only API keys are strongly recommended.
-
-```bash
-OKX_API_KEY=***
-OKX_API_SECRET=***
-OKX_PASSPHRASE=<your_passphrase>
+```dotenv
+# OKX (keep read-only credentials if your local setup needs them)
+OKX_API_KEY=
+OKX_API_SECRET=
+OKX_PASSPHRASE=
 OKX_IS_PAPER_TRADING=true
+
+# Telegram notifier
+TELEGRAM_BOT_TOKEN=
+PHASE3_NOTIFY_TELEGRAM_BOT_TOKEN=
+PHASE3_NOTIFY_TELEGRAM_CHAT_ID=
+
+# Optional upstreams
+OPENNEWS_TOKEN=
+TWITTER_TOKEN=
+OPEN_TOKEN=
+BLOCKBEATS_API_KEY=
+JIN10_MCP_TOKEN=
+CMC_API_KEY=
 ```
 
-If you want Telegram notifications, configure:
+### Run the Project
 
-```bash
-TELEGRAM_BOT_TOKEN=<your_...ken>
-TELEGRAM_CHAT_ID=<your_telegram_chat_id>
-```
-
-Run the main Market Sentinel pipeline.
+Run the canonical Phase3 pipeline:
 
 ```bash
 python scripts/phase3_pipeline.py
 ```
 
-This command runs source collection, context aggregation, and trigger generation in sequence, then writes the results into the local `context/` directory.
-
-Start the local dashboard.
+Start the local dashboard:
 
 ```bash
 python dashboard/server.py --host 127.0.0.1 --port 8765
 ```
 
-Then open the following URL in your browser:
+Then open:
 
 ```text
 http://127.0.0.1:8765
 ```
 
-If you want to receive notifications through Telegram, run:
+Send a Telegram-style monitoring summary:
 
 ```bash
 python scripts/run_phase3_notifier.py
 ```
 
-If you want Hermes to help refresh Semantic Compass, run:
+Set `PHASE3_NOTIFY_TELEGRAM_CHAT_ID` for notifier delivery. `PHASE3_NOTIFY_TELEGRAM_BOT_TOKEN` can override `TELEGRAM_BOT_TOKEN` when you want a dedicated notifier bot.
+
+Refresh the Semantic Compass phrase pack with an agent-assisted brief:
 
 ```bash
-python scripts/semantic_compass.py
+python scripts/refresh_semantic_compass.py --brief "Add phrases for Strait of Hormuz closure / reopening / exchange outage / stablecoin depeg"
 ```
 
-Run tests:
+### Install the Skill Only
+
+If you only want the reusable skill package, copy it into your agent skill directory.
+
+For Hermes:
 
 ```bash
-pytest -q
+mkdir -p ~/.hermes/skills/market-monitoring && cp -r skills/crypto-market-sentinel ~/.hermes/skills/market-monitoring/
 ```
 
----
+For OpenClaw:
 
-## Monitoring Targets and Runtime Modes
+```bash
+mkdir -p ~/.agents/skills/market-monitoring && cp -r skills/crypto-market-sentinel ~/.agents/skills/market-monitoring/
+```
 
-By default, this project does not trade and does not place orders automatically. Its core purpose is market monitoring, risk detection, context aggregation, and agent trigger generation.
+## Usage Example
 
-### Local Pipeline Mode
-
-Local Pipeline Mode reads configuration files, fetches data from multiple sources, and generates unified market context files.
+### 1. Build artifacts
 
 ```bash
 python scripts/phase3_pipeline.py
 ```
 
-Main outputs:
+Typical outputs:
 
 ```text
 context/context_cache.json
 context/trigger_candidates.json
-reports/
+reports/phase3_report_*.md
 ```
 
-### Dashboard Mode
-
-Dashboard Mode starts a local HTTP service for displaying market state, risk summaries, trigger candidates, and configuration status.
-
-```bash
-python dashboard/server.py --host 127.0.0.1 --port 8765
-```
-
-Binding only to `127.0.0.1` is recommended by default. If you need to expose it to a LAN or the public internet, add your own authentication, reverse proxy, and access controls.
-
-### Telegram Notifier Mode
-
-Notifier Mode runs the Market Sentinel pipeline and sends Telegram messages when important changes are detected.
+### 2. Run the notifier
 
 ```bash
 python scripts/run_phase3_notifier.py
 ```
 
-This mode is suitable for scheduled tasks, cron jobs, or lightweight long-running monitoring environments.
-
-### Agent Skill Mode
-
-This project includes:
-
-```text
-skills/crypto-market-sentinel/SKILL.md
-skills/crypto-market-sentinel/references/
-skills/crypto-market-sentinel/templates/
-```
-
-These files can be used as a skill directory for agent systems such as OpenClaw or Hermes. An agent can read `SKILL.md` and use the companion references to understand how to run Market Sentinel, inspect the dashboard, read the context cache, or interpret trigger candidates.
-
-Example Hermes install path:
-
-```bash
-mkdir -p ~/.hermes/skills/market-monitoring
-cp -r skills/crypto-market-sentinel ~/.hermes/skills/market-monitoring/
-```
-
-For OpenClaw users, see:
-
-```text
-OPENCLAW_SETUP.md
-```
-
-For Hermes users, see:
-
-```text
-HERMES_SETUP.md
-```
-
-### Semantic Compass Mode
-
-Semantic Compass is used to maintain the semantic risk phrase pack, including geopolitical risk, exchange risk, regulatory risk, major news risk, and cooldown phrases.
-
-Configuration file:
-
-```text
-config/semantic_compass.json
-```
-
-Run a refresh:
-
-```bash
-python scripts/semantic_compass.py
-```
-
-This mode is useful when you want an agent to continuously adjust the risk phrase set based on current market language and news context.
-
----
-
-## Compatibility
-
-This repository is mainly intended for the following usage patterns:
-
-- **Hermes**: use it directly as a local skill plus a runnable reference implementation
-- **OpenClaw**: use it as a skill directory and integrate it according to the repository documentation
-- **Other agent runtimes**: adapt the repository structure, scripts, and configuration to your own environment
-
-It is not an official plugin for one specific runtime. It is a reusable and modifiable market monitoring skill repository.
-
----
-
-## Configuration Notes
-
-### phase3_rules.yaml
-
-`config/phase3_rules.yaml` stores the main Market Sentinel rules, including:
-
-- data staleness windows
-- event windows
-- risk keywords
-- news risk thresholds
-- social heat thresholds
-- market context thresholds
-- trigger generation rules
-
-Users can modify these parameters based on their own instruments, risk preferences, and monitoring goals.
-
-### semantic_compass.json
-
-`config/semantic_compass.json` stores the semantic risk phrase pack, including:
-
-- `geo_risk`
-- `news_risk`
-- `regulatory_risk`
-- `exchange_risk`
-- cooldown phrases
-- severity anchors
-
-This file helps the system recognize risk semantics in headlines and text, rather than relying only on fixed keywords.
-
-### dashboard_settings.example.json
-
-The Dashboard settings template is located at:
-
-```text
-skills/crypto-market-sentinel/templates/dashboard_settings.example.json
-```
-
-It is recommended to copy it into a local settings file before editing, rather than modifying the template directly.
-
----
-
-## Output
-
-After running the main pipeline, the terminal may print output like this:
-
-```text
-RUN SOURCE okx_market_fetch ... OK
-RUN SOURCE okx_news_fetch ... OK
-RUN SOURCE okx_positions_fetch ... OK
-RUN SOURCE macro_fetch ... OK
-RUN SOURCE crypto_news_fetch ... OK
-RUN SOURCE social_heat_fetch ... OK
-
-BUILD CONTEXT CACHE
-context/context_cache.json written
-
-BUILD TRIGGER CANDIDATES
-context/trigger_candidates.json written
-
-==== Market Sentinel Summary ====
-Time: 2026-05-05 14:37:21
-Mode: local pipeline
-Primary Exchange: OKX
-Market State: neutral
-Macro Risk: medium
-Crypto News Risk: medium
-Geo Risk: low
-Social Heat: elevated
-
-Watched Instruments:
-- BTC-USDT-SWAP
-- ETH-USDT-SWAP
-- SOL-USDT-SWAP
-
-Hot Symbols:
-1. BTC
-2. ETH
-3. SOL
-4. DOGE
-5. XRP
-
-Wake Triggers: 2
-Observe Only Triggers: 5
-Context Cache: context/context_cache.json
-Trigger Candidates: context/trigger_candidates.json
-==== End of Summary ====
-
-WAKE BTC-USDT-SWAP
-Reason: market volatility increased while related news risk is medium
-
-OBSERVE_ONLY ETH-USDT-SWAP
-Reason: price movement is notable but risk score is below wake threshold
-```
-
-After starting the dashboard, the terminal may show:
-
-```text
-Serving dashboard at http://127.0.0.1:8765
-GET /api/dashboard
-GET /api/context
-GET /api/triggers
-```
-
-After running the Telegram notifier, the terminal may show:
-
-```text
-RUNNING PHASE3 PIPELINE
-LOADING PREVIOUS SNAPSHOT
-BUILDING CHANGE SUMMARY
-SENDING TELEGRAM MESSAGE
-NOTIFIER DONE
-```
-
----
-
-## Project Structure
-
-```text
-okx-market-sentinel-skill/
-├── config/
-│   ├── phase3_rules.yaml
-│   └── semantic_compass.json
-├── dashboard/
-│   ├── server.py
-│   └── dashboard_adapter.py
-├── docs/
-├── scripts/
-│   ├── phase3_pipeline.py
-│   ├── build_context_cache.py
-│   ├── build_triggers.py
-│   ├── run_phase3_notifier.py
-│   ├── semantic_compass.py
-│   └── sources/
-├── skills/
-│   └── crypto-market-sentinel/
-│       ├── SKILL.md
-│       ├── references/
-│       └── templates/
-├── tests/
-├── HERMES_SETUP.md
-├── OPENCLAW_SETUP.md
-├── README.md
-└── README.zh.md
-```
-
----
-
-## Security Notes
-
-Do not commit the following to GitHub:
-
-```text
-.env
-OKX API keys
-Telegram Bot Token
-context/
-reports/
-local cache files
-account and positions files
-```
-
-Recommendations:
-
-- enable read-only permission for OKX API keys
-- do not grant trading permission to this project
-- do not expose the dashboard directly to the public internet
-- if exposure is required, add authentication and a reverse proxy
-- do not put real account screenshots, positions, or API credentials into issues or commits
-- periodically review `.gitignore` and `.clawhubignore`
-
-For more security information, see `SECURITY.md`.
-
----
-
-## Testing
-
-Run the full test suite:
+### 3. Run tests
 
 ```bash
 pytest -q
 ```
 
-Run a single test file:
+## Repository Structure
 
-```bash
-pytest tests/test_phase3_pipeline.py -q
-pytest tests/test_dashboard_server.py -q
-pytest tests/test_semantic_compass.py -q
+```text
+.
+├── config/                              # risk rules and semantic configuration
+├── dashboard/                           # local dashboard server and static frontend
+├── docs/                                # architecture, workflow, schema, and handoff docs
+├── scripts/                             # Phase3 pipeline, notifier, and source fetchers
+├── skills/crypto-market-sentinel/       # reusable skill package
+├── tests/                               # regression and packaging tests
+├── .env.example                         # local environment template
+├── requirements.txt                     # runtime + dev dependencies for quick setup
+├── README.md                            # English repository guide
+└── README.zh.md                         # Chinese repository guide
 ```
 
-Before committing changes, it is recommended to run:
+## Which file should I read first?
 
-```bash
-pytest -q
-ruff check .
-```
+- **I want the full runnable system** → start with `README.md`, then `scripts/phase3_pipeline.py`
+- **I only want the reusable skill** → start with `skills/crypto-market-sentinel/README.md`
+- **I want the architecture** → read `docs/phase3-overview.md` and `skills/crypto-market-sentinel/references/architecture.md`
+- **I want common operator commands** → read `skills/crypto-market-sentinel/references/runtime-commands.md`
+- **I want to inspect the dashboard entrypoint** → read `dashboard/server.py`
 
----
+## Project Highlights
 
-## Use Cases
+- **Hybrid delivery model:** not just docs, not just scripts — a real repository that can be run locally and packaged as a skill
+- **Operationally readable output:** the system is optimized for short dashboards and Telegram briefs rather than raw JSON dumps alone
+- **Scope discipline:** focuses on monitoring, risk surfacing, and watchlist generation without pretending to be an execution engine
+- **OKX-native ranking logic:** hot-symbol discovery is grounded in OKX tradable instruments and exchange-native positioning changes
+- **Agent-maintainable semantics:** the phrase-pack workflow makes semantic risk extraction maintainable over time
 
-This project is suitable for:
+## Dependencies
 
-- building a crypto market risk monitoring system
-- providing a market monitoring skill for OpenClaw / Hermes
-- aggregating OKX market data with external news sources
-- generating a context cache that agents can read
-- generating `wake` / `observe_only` trigger types
-- building Telegram risk alerts
-- building a local dashboard
-- researching how agents can participate in pre-trade information gathering and risk judgement
+Required or commonly used dependencies include:
 
-This project is not suitable for:
+- `python`
+- `requests`
+- `PyYAML`
+- `mcp`
+- `pytest`
+- `ruff`
+- `okx` CLI (optional, depending on your local integration path)
+- `hermes` CLI (optional, for agent-assisted semantic refresh and runtime workflows)
+- Telegram Bot API credentials (optional, for notifier delivery)
 
-- direct automated order execution
-- high-frequency trading
-- market-making execution
-- custody of funds
-- unsupervised real-account trading
-- any system that promises profits
+## Project Status and Scope
 
----
+This repository currently centers on the **Phase3 sentinel pipeline** as the canonical product line:
 
-## Disclaimer
+- multi-source fetchers
+- unified context cache
+- trigger candidate generation
+- dashboard reporting
+- Telegram notifier output
+- skill packaging for agent reuse
 
-This is an unofficial project and has no direct relationship with OKX.
+It intentionally excludes automated order execution.
 
-This project is provided for demonstration, research, and agent skill workflow development only. It does not constitute investment advice, trading advice, or a financial service. It does not guarantee data completeness, timeliness, or accuracy, and it does not guarantee any trading return.
+## Security
 
-Users are responsible for evaluating market risk, API permission risk, system failure risk, and information delay risk on their own. Any trading, investment, or account operation based on this project is entirely the user's own responsibility.
+- Never commit real API keys, bot tokens, or account secrets
+- Use `.env` only for local development
+- Prefer read-only OKX credentials
+- Do not bind the dashboard to a public interface unless you add your own authentication and network controls
+- Read `SECURITY.md` before public deployment
 
----
+## Community
+
+Issues and pull requests are welcome for documentation, testing, packaging, and monitoring improvements. For sensitive disclosures, follow `SECURITY.md`.
 
 ## License
 
-This repository is released under the MIT License. See `LICENSE` for details.
+MIT License
