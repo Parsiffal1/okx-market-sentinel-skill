@@ -68,8 +68,7 @@ Top tradeable symbols
 
 If you want to see the product before reading the code, start here:
 
-![OKX Market Sentinel dashboard screenshot 2](docs/assets/dashboard-screenshot-2.jpg)
-![OKX Market Sentinel dashboard screenshot 1](docs/assets/dashboard-screenshot-1.jpg)
+<img width="1719" height="6006" alt="image" src="https://github.com/user-attachments/assets/a95b8dc7-7b19-487f-9d47-1483640c9260" />
 
 ## Core Features
 
