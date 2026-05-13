@@ -5,29 +5,39 @@
 ```text
 Market Sentinel | Scan complete
 
+Task type
+- holdings_review
+
 Market tone
-- Bias: cautious
-- Escalation: yes
-- Main driver: macro repricing plus crypto-native stress
+- market_tone: cautious
+- regime_classification: macro_led
+- macro_risk_level: high
+- crypto_native_risk_level: medium
+- escalation_needed: yes
+
+Main drivers
+- macro repricing
+- cross-asset weakness
+- derivatives pressure in majors
 
 Priority holdings
-1. BTC — elevated risk because cross-asset weakness and event clustering are aligned
-2. ETH — moderate risk because derivatives activity is rising while sector sentiment is mixed
-3. SOL — watch closely because attention remains high, but confirmation is less stable than BTC
+1. BTC — review_priority: highest — risk_level: high — benchmark weakness is confirmed
+2. ETH — review_priority: high — risk_level: medium — derivatives activity is rising
+3. SOL — review_priority: medium — risk_level: medium — attention is strong but confirmation is less stable than BTC
 
-Symbols worth watching
-1. SOL — strong activity confirmation and rising attention
-2. DOGE — attention surge, but confirmation weaker than SOL
+Watchlist rank
+1. SOL — rank_bucket: high — confirmation_status: strong — structural confirmation plus attention
+2. DOGE — rank_bucket: medium — confirmation_status: weak — attention is real but confirmation remains incomplete
 
-Confidence notes
-- Market structure confirmation: high
-- Event confirmation: medium
-- Attention-only signal quality: low to medium
+Confidence
+- confidence_level: medium
+- confirmation_status: mixed
+- missing_evidence: stronger confirmation for the weaker secondary narratives
 ```
 
 ### Why this is a good output
 - starts with current holdings
-- ranks rather than dumps
+- keeps a stable upstream-ready structure
 - explains why BTC is above ETH and SOL
 - keeps uncertainty visible instead of pretending full certainty
 
@@ -38,30 +48,36 @@ Confidence notes
 ```text
 Market Sentinel | Watchlist update
 
+Task type
+- market_sweep
+
 Market tone
-- Bias: mixed-to-cautious
-- Escalation: selective, not broad-based
+- market_tone: mixed
+- regime_classification: mixed
+- macro_risk_level: medium
+- crypto_native_risk_level: medium
+- escalation_needed: selective
 
-Top drivers
-- Macro risk window remains open
-- Crypto-native stress is concentrated rather than market-wide
+Main drivers
+- macro risk window remains open
+- crypto-native stress is concentrated rather than market-wide
 
-Most relevant names
-1. BTC — benchmark weakness still matters most
-2. SOL — leadership with structural confirmation
-3. ETH — important because of derivatives spillover
-4. DOGE — heat is high, but confirmation remains incomplete
+Watchlist rank
+1. BTC — rank_bucket: high — confirmation_status: strong — benchmark weakness still matters most
+2. SOL — rank_bucket: high — confirmation_status: strong — leadership with structural confirmation
+3. ETH — rank_bucket: medium — confirmation_status: moderate — important because of derivatives spillover
+4. DOGE — rank_bucket: attention_only — confirmation_status: weak — heat is high, but confirmation remains incomplete
 
-Confidence notes
-- Macro signal quality: high
-- Crypto-native stress confirmation: medium
-- Attention signal quality: mixed
+Confidence
+- confidence_level: medium
+- confirmation_status: moderate
+- missing_evidence: cleaner confirmation for the attention-led names
 ```
 
 ### Why this is a good output
 - distinguishes broad market tone from symbol ranking
 - does not over-upgrade DOGE just because it is noisy
-- explains confirmation quality instead of hiding it
+- stays usable for both humans and downstream agents
 
 ---
 
@@ -70,22 +86,28 @@ Confidence notes
 ```text
 Market Sentinel | Event follow-up
 
-Classification
-- Regime: mixed
-- Dominant leg: macro-led pressure with secondary crypto-native stress
+Task type
+- event_followup
 
-What changed
-- Cross-asset weakness increased the baseline risk tone
-- A crypto-native incident added pressure to exchange-linked narratives
-- Attention surged faster than broad structural confirmation in meme-related names
+Market tone
+- market_tone: cautious
+- regime_classification: mixed
+- escalation_needed: yes
 
-Names most exposed
-1. BTC — still the cleanest benchmark for the macro leg
-2. ETH — exposed to both derivatives pressure and sector spillover
-3. DOGE — heat is real, but confirmation remains weak
+Main drivers
+- cross-asset weakness increased the baseline risk tone
+- a crypto-native incident added pressure to exchange-linked narratives
+- attention surged faster than broad structural confirmation in meme-related names
 
-Uncertainty
-- The attention spike is easier to observe than to validate structurally
+Priority exposures
+1. BTC — review_priority: highest — risk_level: high — still the cleanest benchmark for the macro leg
+2. ETH — review_priority: high — risk_level: medium — exposed to both derivatives pressure and sector spillover
+3. DOGE — review_priority: low — risk_level: low to medium — heat is real, but confirmation remains weak
+
+Confidence
+- confidence_level: medium
+- confirmation_status: mixed
+- missing_evidence: stronger structural confirmation for the attention spike
 ```
 
 ### Why this is a good output
@@ -100,25 +122,63 @@ Uncertainty
 ```text
 Market Sentinel | Low-confidence scan
 
+Task type
+- market_sweep
+
 Market tone
-- Bias: unclear
-- Escalation: not justified yet
+- market_tone: unresolved
+- regime_classification: unclear
+- escalation_needed: no
 
 What is visible
-- Attention increased in a few names
-- Structural confirmation remains inconsistent
-- Event evidence is partial and may be stale
+- attention increased in a few names
+- structural confirmation remains inconsistent
+- event evidence is partial and may be stale
 
 Working conclusion
-- Keep these names on watch, but do not treat them as high-conviction signals yet
+- keep these names on watch, but do not treat them as high-conviction signals yet
 
-Confidence notes
-- Market structure confirmation: low
-- Event confirmation: low to medium
-- Missing information: stronger cross-source confirmation
+Confidence
+- confidence_level: low
+- confirmation_status: weak
+- missing_evidence: stronger cross-source confirmation
 ```
 
 ### Why this is a good output
 - avoids certainty theater
 - tells the user what is missing
 - still gives a usable monitoring conclusion
+
+---
+
+## Example 5 — upstream handoff to a fuller trading agent
+
+```text
+Market Sentinel | Upstream handoff
+
+Task type
+- holdings_review
+
+Market tone
+- market_tone: cautious
+- regime_classification: macro_led
+- escalation_needed: yes
+
+Priority holdings
+1. BTC — review_priority: highest — risk_level: high — benchmark weakness is broadly confirmed
+2. ETH — review_priority: high — risk_level: medium — derivatives pressure is rising
+
+Watchlist rank
+1. SOL — rank_bucket: high — confirmation_status: strong — leadership remains intact
+2. DOGE — rank_bucket: attention_only — confirmation_status: weak — heat outruns structure
+
+Downstream handoff
+- what_to_do_next: re-check BTC and ETH risk controls first, then review SOL as the top external watchlist name
+- what_not_to_assume: do not treat DOGE heat as execution-grade confirmation
+- best_input_for_next_agent: holdings priority plus high-confirmation watchlist names
+```
+
+### Why this is a good output
+- reads naturally to a human
+- still exposes the fields another agent needs
+- makes the downstream boundary explicit without pretending to be an execution engine

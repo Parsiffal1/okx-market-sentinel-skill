@@ -7,32 +7,40 @@ Use this when the user wants a fuller monitoring memo instead of a chat-sized br
 - holdings before new names when holdings exist
 - every ranked item needs a reason
 - uncertainty must be explicit
+- keep the semantic schema visible enough for downstream agents to reuse
 
 ## Template
 
+### Task type
+- task_type:
+
 ### Market tone
-- Bias:
-- Escalation needed:
-- Main driver:
-- Regime classification: macro-led | crypto-native | mixed | unclear
+- market_tone:
+- regime_classification:
+- macro_risk_level:
+- crypto_native_risk_level:
+- escalation_needed:
+
+### Main drivers
+- main_drivers:
+- trigger_drivers:
 
 ### Priority holdings
-1. [symbol] — [risk level] — [main driver]
-2. [symbol] — [risk level] — [main driver]
-3. [symbol] — [risk level] — [main driver]
+1. [symbol] — review_priority: [highest/high/medium] — risk_level: [high/medium/low] — [why_now]
+2. [symbol] — review_priority: [highest/high/medium] — risk_level: [high/medium/low] — [why_now]
+3. [symbol] — review_priority: [highest/high/medium] — risk_level: [high/medium/low] — [why_now]
 
-### Symbols worth watching
-1. [symbol] — [why now]
-2. [symbol] — [why now]
-3. [symbol] — [why now]
-
-### Why they matter
-- [market-structure reason]
-- [macro or crypto-native reason]
-- [attention signal note if relevant]
+### Watchlist rank
+1. [symbol] — rank_bucket: [high/medium/attention_only] — confirmation_status: [strong/moderate/weak/mixed] — [why_now]
+2. [symbol] — rank_bucket: [high/medium/attention_only] — confirmation_status: [strong/moderate/weak/mixed] — [why_now]
+3. [symbol] — rank_bucket: [high/medium/attention_only] — confirmation_status: [strong/moderate/weak/mixed] — [why_now]
 
 ### Confidence and uncertainty
-- Market structure confirmation:
-- Event confirmation:
-- Attention signal quality:
-- Missing information:
+- confidence_level:
+- confirmation_status:
+- missing_evidence:
+
+### Downstream handoff
+- what_to_do_next:
+- what_not_to_assume:
+- best_input_for_next_agent:

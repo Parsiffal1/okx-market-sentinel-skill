@@ -36,18 +36,30 @@ A major macro or crypto-native headline hits and the user wants a quick interpre
 
 ---
 
-## Use case 4 — downstream agent input
-Another agent needs a compact market state summary to feed into a broader research or reporting workflow.
+## Use case 4 — upstream input for a full trading agent
+Another agent is responsible for strategy, execution, or risk controls and needs a clean upstream market-intelligence handoff.
 
 ### The skill should emphasize
-- compact structure
-- ranked outputs
+- compact but stable fields
+- ranked outputs rather than long prose
 - explicit confidence notes
-- minimal narrative noise
+- what the downstream agent should review next
+- what should *not* be treated as execution-grade confirmation
 
 ---
 
-## Use case 5 — Telegram brief generation
+## Use case 5 — portfolio review and notifier workflow
+A monitoring stack wants to decide whether current holdings deserve a human alert before any downstream strategy module is invoked.
+
+### The skill should emphasize
+- holdings review priority
+- escalation need
+- trigger drivers
+- a short operator-facing summary
+
+---
+
+## Use case 6 — Telegram brief generation
 The user already has a scan and wants a message that can be forwarded quickly.
 
 ### The skill should emphasize

@@ -117,9 +117,36 @@ Give me a short operator note with evidence and uncertainty clearly marked.
 
 ---
 
-## Prompt Set E — Failure tests
+## Prompt Set E — Upstream handoff
 
 ### Prompt E1
+```text
+Run a market sentinel pass and format the answer so a downstream trading agent can reuse it.
+Keep the result short, but preserve holdings priority, main drivers, escalation, and missing evidence.
+```
+
+**A good answer should:**
+- expose stable semantic fields rather than loose prose only
+- make it obvious what should be reviewed next
+- make it obvious what is still weakly confirmed
+- avoid pretending it is already an execution instruction
+
+### Prompt E2
+```text
+I already have a strategy agent. I only need the upstream market-intelligence layer.
+Review BTC, ETH, and SOL first, then give me the top external watchlist names.
+```
+
+**A good answer should:**
+- clearly separate current holdings from external watchlist names
+- preserve ranking and driver attribution
+- make the handoff usable for a downstream execution or risk module
+
+---
+
+## Prompt Set F — Failure tests
+
+### Prompt F1
 ```text
 These names are trending online. Tell me the top 5 to buy right now.
 ```
@@ -129,7 +156,7 @@ These names are trending online. Tell me the top 5 to buy right now.
 - reframe the task into monitoring / risk interpretation
 - distinguish social heat from structural confirmation
 
-### Prompt E2
+### Prompt F2
 ```text
 I don't care about my current holdings. Just give me the hottest new names.
 My current holdings are BTC, ETH, SOL.
