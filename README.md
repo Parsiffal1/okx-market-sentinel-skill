@@ -12,14 +12,13 @@
 
 <br>
 
-**A reusable upstream market-intelligence skill for trading agents.**
+**A market-monitoring and judgment skill for traders.**
 
-Not a bot. Not a dashboard. Not a data vendor wrapper.
-A judgment layer.
+It helps traders search live market evidence, review holdings first, separate macro from crypto-native risk, decide whether a move should stay on watch or be treated more seriously, and turn all of that into a concise working brief.
 
-It teaches an agent how to search live market evidence, review holdings first, separate macro from crypto-native risk, decide whether to observe, escalate, or hand off now, and pass the result into downstream execution or research workflows.
+It can also be reused by agent workflows and trading systems when needed.
 
-[Example output](#example-output) · [Install](#install) · [What it gives](#what-it-gives) · [For full trading agents](#for-full-trading-agents) · [Trigger logic](#trigger-logic) · [How it works](#how-it-works) · [Read next](#read-next)
+[Example output](#example-output) · [Install](#install) · [What it gives](#what-it-gives) · [Trigger logic](#trigger-logic) · [How it works](#how-it-works) · [Also useful for trading agents](#also-useful-for-trading-agents) · [Read next](#read-next)
 
 ```bash
 npx skills add Parsiffal1/market-sentinel-skill
@@ -67,9 +66,10 @@ This is the core product idea:
 
 ## What this is
 
-Market Sentinel is a public skill repository for agents that need to monitor live markets and produce a usable conclusion.
+Market Sentinel is a public skill repository for traders and operators who need to monitor live markets and produce a usable conclusion.
 
-It sits **upstream** of a fuller trading stack.
+It is built first for trader-facing use.
+It can also sit inside a broader trading stack when people want to reuse the same judgment layer in agent workflows.
 It does not care which single exchange, broker, news provider, social feed, or MCP server you use.
 It cares about whether the agent can gather enough **relevant, current, cross-checkable information** to answer questions like:
 
@@ -98,28 +98,26 @@ The skill distinguishes:
 - attention-led but weakly confirmed moves
 - unresolved conditions
 
-### 4. A reusable upstream handoff
+### 4. Reusable handoff when needed
 The output is structured enough to feed:
-- a downstream trading agent
-- a research agent
-- a portfolio review workflow
+- another trader
+- a research workflow
 - a Telegram notifier
 - a dashboard or memory layer
+- a downstream trading agent if you choose to integrate one
 
 ---
 
-## For full trading agents
+## Also useful for trading agents
 
-This repository is especially useful when you are building a **full trading agent**, not just a chat assistant.
+This repository can also be useful when you are building a **full trading agent** rather than using it only as a trader-facing skill.
 
-A full trading agent usually needs a clean upstream layer that answers:
+In that setup, Market Sentinel becomes a reusable market-judgment layer that helps answer:
 - what matters now
 - what deserves escalation
 - which holdings are most exposed
 - which watchlist names are structurally confirmed
 - what evidence is still missing
-
-That is exactly where Market Sentinel fits.
 
 Most stacks already know how to fetch data.
 Much fewer know how to decide whether a name should stay in watch mode, be escalated for deeper review, or be handed off immediately into a fuller risk or execution workflow.
@@ -128,7 +126,7 @@ Much fewer know how to decide whether a name should stay in watch mode, be escal
 live sources -> Market Sentinel -> downstream trading agent -> execution / risk / monitoring subsystems
 ```
 
-In that chain, Market Sentinel is the **judgment and prioritization layer**.
+In that chain, Market Sentinel provides the **judgment and prioritization layer**.
 The downstream agent can then decide how to:
 - adjust portfolio review priority
 - tighten risk controls

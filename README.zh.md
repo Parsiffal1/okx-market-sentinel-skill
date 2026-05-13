@@ -12,14 +12,13 @@
 
 <br>
 
-**一个可复用的、面向完整 trading agent 的上游市场信息判断 skill。**
+**一个服务交易者的市场监控与判断 skill。**
 
-不是 bot，不是 dashboard，也不是某个数据源的封装。
-它是判断层。
+它帮助交易者联网搜索实时市场证据、先看持仓、区分宏观风险和加密原生风险、判断一个变化应该继续观察还是更严肃地处理，并把这些内容整理成一份真正能用的工作简报。
 
-它教 agent 如何联网搜索实时市场证据、先看持仓、区分宏观风险和加密原生风险、决定是继续观察、升级处理，还是立即交接，并把结果交给下游执行、研究、通知或风控流程继续使用。
+如果需要，它也可以继续被 agent workflow 或 trading system 复用。
 
-[效果示例](#效果示例) · [安装](#安装) · [你能得到什么](#你能得到什么) · [给完整-trading-agent-做上游](#给完整-trading-agent-做上游) · [触发逻辑](#触发逻辑) · [工作方式](#工作方式) · [接下来先看什么](#接下来先看什么)
+[效果示例](#效果示例) · [安装](#安装) · [你能得到什么](#你能得到什么) · [触发逻辑](#触发逻辑) · [工作方式](#工作方式) · [也适合-trading-agent-复用](#也适合-trading-agent-复用) · [接下来先看什么](#接下来先看什么)
 
 ```bash
 npx skills add Parsiffal1/market-sentinel-skill
@@ -67,9 +66,10 @@ npx skills add Parsiffal1/market-sentinel-skill
 
 ## 这个项目是什么
 
-市场哨兵是一个公开的 skill 仓库，目标是让 agent 能对实时市场做出可复用、可交接的判断。
+市场哨兵是一个面向交易者和操作员的公开 skill 仓库，目标是帮助人更好地监控实时市场并得出可用结论。
 
-它位于一个更完整 trading stack 的**上游**。
+它首先是一个服务交易者本身的 skill。
+如果有人希望把同样的判断层复用进更大的 trading stack，它也可以兼容 agent workflow。
 它不绑定某个固定交易所、券商、新闻源、社交源或 MCP 服务。
 它真正关心的是：agent 能不能拿到足够**相关、及时、可交叉验证**的信息，去回答这些问题：
 
@@ -97,28 +97,26 @@ npx skills add Parsiffal1/market-sentinel-skill
 - 注意力主导但确认弱
 - 尚不清楚
 
-### 4. 可复用的上游交接结果
+### 4. 需要时可复用的交接结果
 它的输出足够结构化，可以直接喂给：
-- 下游 trading agent
-- 研究 agent
-- 组合复查流程
+- 另一位交易者
+- 研究流程
 - Telegram notifier
 - dashboard 或 memory layer
+- 如果你需要，也可以接给下游 trading agent
 
 ---
 
-## 给完整 trading agent 做上游
+## 也适合 trading agent 复用
 
-如果你要做的是**完整 trading agent**，而不只是一个会聊天的助手，这个 skill 会特别有价值。
+如果你在做**完整 trading agent**，这个 skill 也可以作为其中的市场判断层被复用。
 
-完整 trading agent 往往都需要一个干净的上游层，先回答：
+在那种 setup 里，市场哨兵主要负责回答：
 - 现在什么最重要
 - 什么需要升级关注
 - 哪些持仓暴露最高
 - 哪些观察名单已经被结构确认
 - 还缺哪些证据
-
-这正是市场哨兵的定位。
 
 大多数 stack 已经会抓数据。
 真正稀缺的是：能不能判断一个名字现在只是继续观察、需要升级复查，还是应该立刻交给更完整的风险或执行流程。
@@ -127,7 +125,7 @@ npx skills add Parsiffal1/market-sentinel-skill
 live sources -> Market Sentinel -> downstream trading agent -> execution / risk / monitoring subsystems
 ```
 
-在这条链路里，市场哨兵负责的是**判断与排优先级**。
+在这条链路里，市场哨兵提供的是**判断与排优先级**。
 下游 agent 再决定如何：
 - 调整组合复查优先级
 - 收紧风控约束

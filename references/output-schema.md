@@ -1,13 +1,13 @@
 # Output Schema
 
-Market Sentinel is most useful when its output can be consumed by both humans and downstream agents.
+Market Sentinel is most useful when its output can be consumed directly by traders, and also reused by downstream agents when needed.
 
 This schema is intentionally **lightweight**:
-- stable enough for agent-to-agent handoff
-- human-readable enough for direct briefs
+- useful for trader-facing briefs
+- stable enough for agent-to-agent handoff when needed
 - strict about meaning, but not falsely numeric
 
-It is designed for use as an **upstream market-intelligence layer** for a fuller trading agent stack.
+It can serve as a trader-facing output contract first, and as an **upstream market-intelligence layer** for a fuller trading agent stack second.
 That downstream stack may include:
 - portfolio review logic
 - execution policy

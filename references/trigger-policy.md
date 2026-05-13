@@ -1,7 +1,8 @@
 # Trigger and Escalation Policy
 
 Market Sentinel is not only a summarizer.
-It is also an **upstream escalation layer**.
+It is first a trader-facing monitoring and judgment skill.
+When needed, it can also act as an escalation layer inside a broader workflow.
 
 A good pass should decide not just *what is happening*, but also:
 - what only deserves watching
