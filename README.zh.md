@@ -11,7 +11,7 @@
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-green)](https://skills.sh)
 
 ```bash
-npx skills add Parsiffal1/okx-market-sentinel-skill
+npx skills add Parsiffal1/market-sentinel-skill
 ```
 
 </div>
@@ -264,7 +264,7 @@ templates/
 ### 安装成 skill
 
 ```bash
-npx skills add Parsiffal1/okx-market-sentinel-skill
+npx skills add Parsiffal1/market-sentinel-skill
 ```
 
 或者按你的 agent runtime 习惯，把仓库放进本地 skill 目录。

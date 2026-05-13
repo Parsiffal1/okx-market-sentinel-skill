@@ -7,8 +7,8 @@ description: |
 version: "1.1.0"
 user-invocable: true
 argument-hint: "market scan | holdings review | hot-symbol ranking | event-driven risk summary | Telegram brief"
-homepage: https://github.com/Parsiffal1/okx-market-sentinel-skill
-repository: https://github.com/Parsiffal1/okx-market-sentinel-skill
+homepage: https://github.com/Parsiffal1/market-sentinel-skill
+repository: https://github.com/Parsiffal1/market-sentinel-skill
 author: Parsiffal
 license: MIT
 metadata: {"openclaw": {"emoji": "📡", "tags": ["okx", "market-monitoring", "risk-sentinel", "crypto", "holdings-review", "watchlist"], "requires": {"optionalEnv": ["TIMEZONE", "DEFAULT_WATCHLIST", "DEFAULT_OUTPUT_STYLE", "DEFAULT_REPORT_CHANNEL"]}}, "hermes": {"requires_toolsets": ["web", "browser", "terminal", "file"]}}
