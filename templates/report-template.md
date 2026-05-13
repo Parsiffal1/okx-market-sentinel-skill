@@ -19,6 +19,7 @@ Use this when the user wants a fuller monitoring memo instead of a chat-sized br
 - regime_classification:
 - macro_risk_level:
 - crypto_native_risk_level:
+- action_state:
 - escalation_needed:
 
 ### Main drivers

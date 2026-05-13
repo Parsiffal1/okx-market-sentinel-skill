@@ -13,6 +13,7 @@ Market tone
 - regime_classification: macro_led
 - macro_risk_level: high
 - crypto_native_risk_level: medium
+- action_state: escalate
 - escalation_needed: yes
 
 Main drivers
@@ -56,6 +57,7 @@ Market tone
 - regime_classification: mixed
 - macro_risk_level: medium
 - crypto_native_risk_level: medium
+- action_state: observe
 - escalation_needed: selective
 
 Main drivers
@@ -92,6 +94,7 @@ Task type
 Market tone
 - market_tone: cautious
 - regime_classification: mixed
+- action_state: escalate
 - escalation_needed: yes
 
 Main drivers
@@ -128,6 +131,7 @@ Task type
 Market tone
 - market_tone: unresolved
 - regime_classification: unclear
+- action_state: observe
 - escalation_needed: no
 
 What is visible
@@ -162,6 +166,7 @@ Task type
 Market tone
 - market_tone: cautious
 - regime_classification: macro_led
+- action_state: handoff_now
 - escalation_needed: yes
 
 Priority holdings

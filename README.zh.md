@@ -14,9 +14,12 @@
 
 **一个可复用的、面向完整 trading agent 的上游市场信息判断 skill。**
 
-它教 agent 如何联网搜索实时市场证据、先看持仓、区分宏观风险和加密原生风险、排序当前最重要的对象，并把结果交给下游执行、研究、通知或风控流程继续使用。
+不是 bot，不是 dashboard，也不是某个数据源的封装。
+它是判断层。
 
-[效果示例](#效果示例) · [安装](#安装) · [你能得到什么](#你能得到什么) · [给完整-trading-agent-做上游](#给完整-trading-agent-做上游) · [工作方式](#工作方式) · [接下来先看什么](#接下来先看什么)
+它教 agent 如何联网搜索实时市场证据、先看持仓、区分宏观风险和加密原生风险、决定是继续观察、升级处理，还是立即交接，并把结果交给下游执行、研究、通知或风控流程继续使用。
+
+[效果示例](#效果示例) · [安装](#安装) · [你能得到什么](#你能得到什么) · [给完整-trading-agent-做上游](#给完整-trading-agent-做上游) · [触发逻辑](#触发逻辑) · [工作方式](#工作方式) · [接下来先看什么](#接下来先看什么)
 
 ```bash
 npx skills add Parsiffal1/market-sentinel-skill
@@ -36,6 +39,7 @@ npx skills add Parsiffal1/market-sentinel-skill
 - regime_classification: macro_led
 - macro_risk_level: high
 - crypto_native_risk_level: medium
+- action_state: escalate
 - escalation_needed: yes
 
 主要驱动
@@ -116,6 +120,9 @@ npx skills add Parsiffal1/market-sentinel-skill
 
 这正是市场哨兵的定位。
 
+大多数 stack 已经会抓数据。
+真正稀缺的是：能不能判断一个名字现在只是继续观察、需要升级复查，还是应该立刻交给更完整的风险或执行流程。
+
 ```text
 live sources -> Market Sentinel -> downstream trading agent -> execution / risk / monitoring subsystems
 ```
@@ -129,6 +136,25 @@ live sources -> Market Sentinel -> downstream trading agent -> execution / risk 
 - 只把高优先级上下文送进执行逻辑
 
 如果你想看这种交接方式的稳定字段，直接读 [`references/output-schema.md`](references/output-schema.md)。
+
+---
+
+## 触发逻辑
+
+市场哨兵不只要回答*什么重要*。
+它还应该在监控层上回答：下游系统下一步应该怎么处理。
+
+推荐三种 action state：
+- `observe` —— 值得继续观察，但还不够强，不必立刻进入更深下游流程
+- `escalate` —— 值得交给下游 agent、风险模块或人工操作员做进一步复查
+- `handoff_now` —— 应该立即转入更完整的 trading / risk workflow
+
+一个简单经验是：
+- 持仓受到直接且已确认的压力时，默认偏向 `escalate`
+- 多层信号同向时，可以支持 `escalate` 或 `handoff_now`
+- 只有热度没有结构确认时，通常应停留在 `observe`
+
+完整触发契约见 [`references/trigger-policy.md`](references/trigger-policy.md)。
 
 ---
 
@@ -190,6 +216,7 @@ agent 需要分清：
 - `regime_classification`
 - `macro_risk_level`
 - `crypto_native_risk_level`
+- `action_state`
 - `escalation_needed`
 - `main_drivers`
 - `trigger_drivers`
@@ -201,6 +228,7 @@ agent 需要分清：
 - `downstream_handoff`
 
 完整定义见 [`references/output-schema.md`](references/output-schema.md)。
+触发与升级规则见 [`references/trigger-policy.md`](references/trigger-policy.md)。
 
 ---
 
@@ -247,6 +275,7 @@ templates/
 
 - [`SKILL.md`](SKILL.md)
 - [`references/output-schema.md`](references/output-schema.md)
+- [`references/trigger-policy.md`](references/trigger-policy.md)
 - [`references/information-model.md`](references/information-model.md)
 - [`references/api-agnostic-data-requirements.md`](references/api-agnostic-data-requirements.md)
 - [`references/source-grounding-rules.md`](references/source-grounding-rules.md)

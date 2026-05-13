@@ -89,6 +89,17 @@ Recommended values:
 - `high`
 - `unclear`
 
+### `action_state`
+The recommended next action state for the result.
+
+Recommended values:
+- `observe`
+- `escalate`
+- `handoff_now`
+- `unclear`
+
+See [`references/trigger-policy.md`](trigger-policy.md) for the trigger contract.
+
 ### `escalation_needed`
 Whether the situation deserves deeper review or downstream action.
 

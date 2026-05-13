@@ -14,9 +14,12 @@
 
 **A reusable upstream market-intelligence skill for trading agents.**
 
-It teaches an agent how to search live market evidence, review holdings first, separate macro from crypto-native risk, rank what matters now, and hand the result to downstream execution or research workflows.
+Not a bot. Not a dashboard. Not a data vendor wrapper.
+A judgment layer.
 
-[Example output](#example-output) · [Install](#install) · [What it gives](#what-it-gives) · [For full trading agents](#for-full-trading-agents) · [How it works](#how-it-works) · [Read next](#read-next)
+It teaches an agent how to search live market evidence, review holdings first, separate macro from crypto-native risk, decide whether to observe, escalate, or hand off now, and pass the result into downstream execution or research workflows.
+
+[Example output](#example-output) · [Install](#install) · [What it gives](#what-it-gives) · [For full trading agents](#for-full-trading-agents) · [Trigger logic](#trigger-logic) · [How it works](#how-it-works) · [Read next](#read-next)
 
 ```bash
 npx skills add Parsiffal1/market-sentinel-skill
@@ -36,6 +39,7 @@ Market tone
 - regime_classification: macro_led
 - macro_risk_level: high
 - crypto_native_risk_level: medium
+- action_state: escalate
 - escalation_needed: yes
 
 Main drivers
@@ -117,6 +121,9 @@ A full trading agent usually needs a clean upstream layer that answers:
 
 That is exactly where Market Sentinel fits.
 
+Most stacks already know how to fetch data.
+Much fewer know how to decide whether a name should stay in watch mode, be escalated for deeper review, or be handed off immediately into a fuller risk or execution workflow.
+
 ```text
 live sources -> Market Sentinel -> downstream trading agent -> execution / risk / monitoring subsystems
 ```
@@ -130,6 +137,25 @@ The downstream agent can then decide how to:
 - pass only the top-ranked context into execution logic
 
 If you want the exact lightweight contract for this handoff, read [`references/output-schema.md`](references/output-schema.md).
+
+---
+
+## Trigger logic
+
+Market Sentinel should not only say *what matters*.
+It should also decide what the downstream system should do next at a monitoring level.
+
+Three action states are recommended:
+- `observe` — worth monitoring, but not strong enough for deeper downstream work yet
+- `escalate` — deserves deeper review by a downstream agent, risk module, or human operator
+- `handoff_now` — should be forwarded immediately into a fuller trading or risk workflow
+
+As a rule of thumb:
+- holdings under direct confirmed pressure should bias toward `escalate`
+- multiple aligned layers can justify `escalate` or `handoff_now`
+- attention without structure should usually stay at `observe`
+
+Read the full trigger contract in [`references/trigger-policy.md`](references/trigger-policy.md).
 
 ---
 
@@ -191,6 +217,7 @@ Recommended top-level fields include:
 - `regime_classification`
 - `macro_risk_level`
 - `crypto_native_risk_level`
+- `action_state`
 - `escalation_needed`
 - `main_drivers`
 - `trigger_drivers`
@@ -202,6 +229,7 @@ Recommended top-level fields include:
 - `downstream_handoff`
 
 Read the full contract in [`references/output-schema.md`](references/output-schema.md).
+Read the escalation rules in [`references/trigger-policy.md`](references/trigger-policy.md).
 
 ---
 
@@ -248,6 +276,7 @@ templates/
 
 - [`SKILL.md`](SKILL.md)
 - [`references/output-schema.md`](references/output-schema.md)
+- [`references/trigger-policy.md`](references/trigger-policy.md)
 - [`references/information-model.md`](references/information-model.md)
 - [`references/api-agnostic-data-requirements.md`](references/api-agnostic-data-requirements.md)
 - [`references/source-grounding-rules.md`](references/source-grounding-rules.md)

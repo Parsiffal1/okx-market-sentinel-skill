@@ -16,6 +16,7 @@ Market Sentinel | Scan complete
 Market tone
 - market_tone: 
 - regime_classification: 
+- action_state: 
 - escalation_needed: 
 
 Main drivers

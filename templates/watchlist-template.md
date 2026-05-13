@@ -11,6 +11,7 @@ Use this when the user wants a ranked watchlist rather than a general summary.
 ## Top-level context
 - market_tone:
 - regime_classification:
+- action_state:
 - escalation_needed:
 - main_drivers:
 
