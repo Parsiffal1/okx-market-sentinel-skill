@@ -4,7 +4,7 @@
 
 # OKX Market Sentinel Skill
 
-**An OKX-first, API-provider-agnostic market monitoring skill for agents that need to search, synthesize, rank, and report.**
+**Teach an agent to watch OKX-tradable markets like an operator: search the live web, inspect holdings first, separate real risk from noise, and write a brief people can actually use.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Agent Skill](https://img.shields.io/badge/Agent%20Skill-Compatible-blueviolet)](https://skills.sh)
@@ -18,118 +18,159 @@ npx skills add Parsiffal1/okx-market-sentinel-skill
 
 ---
 
-## What this skill is
+## Why this exists
 
-OKX Market Sentinel is a **market-monitoring skill**, not a trading bot and not a dashboard product.
+Most market-monitoring workflows stop too early.
 
-Its job is simple:
+They can fetch prices. They can pull headlines. They can show a list of movers.
+But they usually fail at the part that matters:
 
-> help an agent turn scattered market information into a holdings-aware risk view, a watchlist, and a readable summary.
+- *Which current holdings deserve attention first?*
+- *Is this move macro-driven, crypto-native, or mostly noise?*
+- *Which OKX-tradable names are worth watching right now?*
+- *How do I turn all of that into a brief another operator or agent can read in seconds?*
 
-The skill is designed for workflows like:
+**OKX Market Sentinel exists to make that judgment layer reusable.**
 
-- monitoring current holdings before they become a problem
-- ranking which OKX-tradable symbols are worth attention now
-- separating macro risk from crypto-native risk
-- turning multi-source market noise into concise operator-facing output
-- producing a brief that can be sent to chat, notes, or another agent step
-
-This repository is now intentionally **skill-first**. It does not ship a heavy reference implementation, local dashboard, or fixed provider stack.
-
----
-
-## What this skill is not
-
-This skill does **not**:
-
-- place trades
-- manage orders
-- promise profits
-- require one specific API vendor
-- depend on one hard-coded news, macro, or social provider
-
-If an agent can access market data, search the web, inspect holdings, and read current event sources, the skill can be used.
+It gives an agent a repeatable way to:
+- collect live market evidence
+- organize that evidence by type
+- prioritize current exposure
+- rank what matters now
+- output a concise, grounded summary
 
 ---
 
-## Core idea
+## What you get
 
-Most market-monitoring setups fail in one of two ways:
+This skill teaches an agent how to produce four useful things.
 
-1. they are too raw — lots of prices, headlines, and alerts, but no operational judgment
-2. they are too narrow — they depend on one exchange view, one news feed, or one sentiment source
+### 1. A market state summary
+Not just *what moved*, but what kind of regime the market is in:
+- cautious
+- mixed
+- risk-on
+- risk-off
+- unresolved / conflicting
 
-OKX Market Sentinel solves that by giving the agent a reusable workflow:
+### 2. A holdings-first review
+If the user already has positions, those positions come first.
+The skill should identify:
+- what needs immediate review
+- what is only watchlist-worthy
+- what looks scary but is still weakly confirmed
 
-1. gather market structure information
-2. gather macro and crypto-native events
-3. check current holdings first
-4. score what matters now
-5. output the result in a compact, explainable format
+### 3. A hot-symbol shortlist
+A ranking of OKX-tradable names worth monitoring now, with reasons.
 
-The important thing is that the skill is **information-oriented, not provider-oriented**.
+### 4. A readable operator brief
+The final output should feel like a useful working note, not a raw dump.
 
 ---
 
-## What information the agent should collect
+## What the agent should pay attention to
 
-The skill cares about **information categories**, not vendor names.
+This repository is deliberately **API-provider-agnostic**.
+It does not define the workflow by vendor names.
+It defines the workflow by **information categories**.
 
-### 1. Market structure
-- price change
-- volume / turnover
+### Market structure
+- price movement
+- turnover / volume
 - open interest or contract activity if available
-- unusual volatility or relative strength
-- top movers among OKX-tradable instruments
+- unusual volatility
+- relative strength / weakness
+- which OKX-tradable instruments are actually active
 
-### 2. Holdings and exposure
+### Holdings and exposure
 - current positions or watchlist
-- exposure concentration
-- position-specific event risk
-- which names deserve priority review right now
+- concentration risk
+- direct event exposure
+- names that deserve priority review right now
 
-### 3. Macro context
+### Macro context
 - rates, inflation, labor, liquidity, policy shifts
 - cross-asset risk appetite
-- major geopolitical shocks that can reprice crypto and leveraged instruments
+- geopolitical developments with real market impact
 
-### 4. Crypto-native context
+### Crypto-native context
 - exchange incidents
 - stablecoin stress
 - security events
-- token / protocol-specific blowups
-- narrative rotation between sectors
+- token / protocol-specific shocks
+- narrative rotation across sectors
 
-### 5. Social and attention signals
-- discussion heat
-- sudden narrative acceleration
-- unusual concentration of attention on a small set of symbols
+### Attention signals
+- sudden discussion heat
+- narrative acceleration
+- unusual concentration of focus on a small set of symbols
 
-The agent may obtain these from web search, exchange interfaces, data APIs, internal tools, databases, MCP servers, or human-provided notes.
+The agent may obtain these from web search, browser tools, market-data interfaces, internal systems, databases, MCP tools, or user-provided context.
 
 ---
 
-## What the skill outputs
+## The core loop
 
-A good run should usually produce some combination of the following:
+This skill works best when the agent follows a simple loop:
 
-### A. Risk summary
-- current market tone
-- what changed since the last scan
-- whether risk is rising, stable, or mixed
+### Step 1 — define the scope
+What is the user asking for?
+- a holdings review
+- a market sweep
+- an event-driven follow-up
+- a watchlist update
+- a formatted brief
 
-### B. Holdings-first review
-- which current holdings need immediate attention
-- what event or market behavior is driving that concern
-- whether the issue looks systemic, isolated, or uncertain
+### Step 2 — gather live evidence
+Pull the minimum evidence needed from the relevant information categories.
 
-### C. Hot-symbol shortlist
-- the most relevant OKX-tradable names to monitor now
-- why they appear on the list
-- which signals support the ranking
+### Step 3 — sort the evidence
+Separate it into:
+- market structure
+- holdings impact
+- macro drivers
+- crypto-native drivers
+- attention / discussion heat
 
-### D. Operator brief
-A short output suitable for chat or notes, for example:
+### Step 4 — rank what matters
+Not everything deserves equal weight.
+The skill should decide:
+- what is truly urgent
+- what is worth watching
+- what is noisy but unconfirmed
+
+### Step 5 — write the brief
+Lead with the conclusion.
+Then give the reasons.
+Then mark uncertainty.
+
+A fuller operational version lives in [`references/market-monitoring-playbook.md`](references/market-monitoring-playbook.md).
+
+---
+
+## Typical prompts
+
+### Holdings-first
+- `Run an OKX market sentinel pass. Review my holdings first, then tell me what else deserves attention.`
+- `Reassess these positions using current market, macro, and crypto-native information.`
+
+### Full market scan
+- `Scan OKX-tradable markets and rank the symbols worth watching now.`
+- `Give me a compact OKX market sentinel summary for the current session.`
+
+### Event-driven follow-up
+- `Search the strongest current drivers behind today's move and separate real risk from noise.`
+- `Tell me whether this looks macro-led, crypto-native, or mixed.`
+
+### Reporting
+- `Turn this into a Telegram-style brief.`
+- `Give me a short operator note with evidence and uncertainty clearly marked.`
+
+More examples live in [`examples/prompts.md`](examples/prompts.md).
+
+---
+
+## Example output
 
 ```text
 OKX Market Sentinel | Scan complete
@@ -137,103 +178,67 @@ OKX Market Sentinel | Scan complete
 Market tone
 - Bias: cautious
 - Escalation: yes
-- Main driver: macro event window + crypto-native stress
+- Main driver: macro repricing plus crypto-native stress
 
 Priority holdings
-1. BTC — risk elevated due to cross-asset weakness and event clustering
-2. ETH — watch for derivatives pressure and sector spillover
+1. BTC — elevated risk because cross-asset weakness and event clustering are aligned
+2. ETH — moderate risk because derivatives activity is rising while sector sentiment is mixed
 
 Symbols worth monitoring
-1. SOL — rising heat + strong contract activity
-2. DOGE — attention surge without equally strong structural confirmation
+1. SOL — strong activity confirmation and rising attention
+2. DOGE — attention surge, but confirmation weaker than SOL
 
 Confidence notes
-- Macro signal strength: high
-- Crypto-native event confirmation: medium
-- Social signal reliability: mixed
+- Market structure confirmation: high
+- Event confirmation: medium
+- Attention-only signal quality: low to medium
 ```
 
----
-
-## Typical prompts
-
-### General market scan
-- `Run an OKX market sentinel pass and give me a concise risk summary.`
-- `Look across OKX-tradable contracts and tell me what deserves attention right now.`
-
-### Holdings-first scan
-- `Reassess my current holdings first, then rank what else is worth monitoring.`
-- `Given these holdings, tell me which positions face the highest immediate risk and why.`
-
-### Event-driven scan
-- `Use current macro and crypto-native developments to tell me whether this is a risk-on or risk-off window for OKX contracts.`
-- `Search for the main drivers behind today’s strongest moves and separate noise from real risk.`
-
-### Reporting
-- `Turn this scan into a Telegram-style brief.`
-- `Give me a watchlist plus evidence, with uncertainty clearly marked.`
-
-More examples live in [`examples/prompts.md`](examples/prompts.md).
+More sample outputs are in [`examples/outputs.md`](examples/outputs.md).
 
 ---
 
-## How the skill should think
+## Working style
 
-### Principle 1 — holdings before ideas
-If the user already has positions, those positions get priority over new opportunities.
+The skill should consistently behave like this:
 
-### Principle 2 — information beats source branding
-The skill should not care whether a macro headline came from one provider or another. It should care whether the information is timely, specific, and cross-checkable.
+### Holdings before ideas
+If the user already has exposure, start there.
 
-### Principle 3 — event importance is not the same as social popularity
-A widely discussed topic can still be weak evidence. A low-volume but high-impact operational event can matter much more.
+### Relevance before volume
+One precise, high-impact signal is worth more than ten vague headlines.
 
-### Principle 4 — explain the driver, not just the label
-Do not say only `risk high`. Say what is actually driving the risk: macro repricing, exchange stress, open-interest shift, security shock, or uncertain social heat.
+### Information quality before source branding
+A familiar provider is not automatically better than a current, specific, cross-checkable source.
 
-### Principle 5 — mark uncertainty honestly
-If evidence is partial, conflicting, stale, or weak, the output should say so.
+### Explanation before labels
+Do not only say `high risk` or `worth watching`.
+Say what is driving the conclusion.
 
----
-
-## Skill workflow
-
-A strong execution usually looks like this:
-
-1. confirm scope
-   - holdings? watchlist? full market? one sector?
-2. collect current market structure data
-3. collect macro and crypto-native events
-4. collect supporting discussion / attention signals if useful
-5. compare signal quality across categories
-6. identify the few items that actually matter
-7. produce a readable summary with evidence and uncertainty notes
-
-A more detailed version is in [`references/market-monitoring-playbook.md`](references/market-monitoring-playbook.md).
+### Honesty before certainty theater
+If the evidence is mixed, say it is mixed.
+If the evidence is thin, say it is thin.
 
 ---
 
-## Source grounding expectations
+## Recommended output shape
 
-The skill should prefer:
+A strong default answer usually has this structure:
 
-- current information over stale information
-- multiple confirming signals over one isolated signal
-- directly relevant evidence over generic commentary
-- exchange / market / event evidence over vague sentiment summaries
+1. **Market tone**
+2. **Priority holdings**
+3. **Symbols worth watching**
+4. **Why they matter**
+5. **Confidence / uncertainty notes**
 
-The agent should avoid:
-
-- over-trusting one provider
-- presenting unsupported causal claims as facts
-- confusing correlated noise with a real trigger
-- treating old summaries as if they were live market evidence
-
-Detailed grounding rules are in [`references/source-grounding-rules.md`](references/source-grounding-rules.md).
+Ready-to-reuse templates live in:
+- [`templates/report-template.md`](templates/report-template.md)
+- [`templates/telegram-brief-template.md`](templates/telegram-brief-template.md)
+- [`templates/watchlist-template.md`](templates/watchlist-template.md)
 
 ---
 
-## File layout
+## Repository layout
 
 ```text
 README.md
@@ -244,14 +249,14 @@ examples/
 templates/
 ```
 
-- `SKILL.md` is the main runtime contract
-- `references/` explains the information model and decision rules
+- `SKILL.md` is the runtime contract
+- `references/` explains the information model and grounding rules
 - `examples/` shows prompts, outputs, and use cases
-- `templates/` gives reusable output formats
+- `templates/` provides reusable output formats
 
 ---
 
-## Installation and usage
+## Install and use
 
 ### Install as a skill
 
@@ -259,29 +264,33 @@ templates/
 npx skills add Parsiffal1/okx-market-sentinel-skill
 ```
 
-Or copy the repository into your agent skill directory if your runtime expects local skills.
+Or place the repository inside your local skill directory if your agent runtime prefers local skills.
 
 ### Runtime assumptions
 
 This skill assumes the agent can use some combination of:
-
 - web search
-- browser or document reading tools
+- browser / document reading
 - market-data tools or APIs
-- holdings / account state inputs
-- messaging or reporting output tools
+- holdings / account-state inputs
+- messaging or reporting tools
 
-It does **not** require one canonical provider stack.
+The skill does not require one canonical provider stack.
 
 ---
 
-## Safety boundary
+## Boundaries
 
-This skill helps with monitoring and interpretation.
-It does **not** replace human judgment, execution controls, or risk management policy.
+This skill is for monitoring, synthesis, and reporting.
 
-Use read-only credentials when connecting real exchange data.
-Never interpret the output as guaranteed profit or personalized investment advice.
+It helps answer:
+- what matters now
+- what deserves attention first
+- what looks real versus noisy
+
+It does not replace execution controls, risk policy, or human judgment.
+
+If real exchange access is involved, prefer read-only credentials.
 
 ---
 
@@ -290,4 +299,5 @@ Never interpret the output as guaranteed profit or personalized investment advic
 - [`SKILL.md`](SKILL.md)
 - [`references/information-model.md`](references/information-model.md)
 - [`references/api-agnostic-data-requirements.md`](references/api-agnostic-data-requirements.md)
+- [`references/source-grounding-rules.md`](references/source-grounding-rules.md)
 - [`examples/outputs.md`](examples/outputs.md)

@@ -23,8 +23,8 @@ This skill gives an agent a reusable way to:
 4. separate macro-driven stress from crypto-native stress
 5. produce a compact, operator-friendly output
 
-This is a **monitoring and interpretation skill**.
-It is **not** an execution engine, strategy backtester, or order-management workflow.
+This is a **monitoring and interpretation skill** built to help an agent observe, prioritize, explain, and summarize live market conditions.
+Its center of gravity is judgment: what matters now, what deserves review first, and how to express that clearly.
 
 ---
 
