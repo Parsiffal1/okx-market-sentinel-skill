@@ -3,7 +3,7 @@
 ## Scope
 This repository is a **skill package**.
 
-It does not ship a trading engine, web dashboard, or fixed runtime service. Most security risk therefore comes from how the skill is used inside an agent runtime, especially when that runtime has access to:
+Most security risk in this repository comes from how the skill is used inside an agent runtime, especially when that runtime has access to:
 
 - exchange credentials
 - portfolio or holdings data
