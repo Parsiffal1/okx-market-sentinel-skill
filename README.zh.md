@@ -2,7 +2,7 @@
 
 <div align="center">
 
-# 市场哨兵 Skill
+# 市场哨兵.skill
 
 > *把 agent 训练成真正会看盘的操作员。*
 
@@ -31,7 +31,7 @@ npx skills add Parsiffal1/market-sentinel-skill
 ## 效果示例
 
 ```text
-市场哨兵｜扫描完成
+市场哨兵.skill｜扫描完成
 
 市场状态
 - market_tone: cautious

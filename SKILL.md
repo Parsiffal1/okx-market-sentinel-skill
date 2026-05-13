@@ -14,7 +14,7 @@ license: MIT
 metadata: {"openclaw": {"emoji": "📡", "tags": ["market-monitoring", "market-intelligence", "risk-sentinel", "agent-upstream", "holdings-review", "watchlist"], "requires": {"optionalEnv": ["TIMEZONE", "DEFAULT_WATCHLIST", "DEFAULT_OUTPUT_STYLE", "DEFAULT_REPORT_CHANNEL"]}}, "hermes": {"requires_toolsets": ["web", "browser", "terminal", "file"]}}
 ---
 
-# Market Sentinel
+# Market Sentinel.skill
 
 > 把 agent 训练成一个真正会看盘、会排优先级、会写简报的市场哨兵。
 

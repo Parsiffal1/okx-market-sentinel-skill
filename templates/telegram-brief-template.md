@@ -11,7 +11,7 @@ Use this when the user wants a compact, high-signal message.
 - Preserve the key schema labels so another agent can reuse the brief.
 
 ```text
-Market Sentinel | Scan complete
+Market Sentinel.skill | Scan complete
 
 Market tone
 - market_tone: 

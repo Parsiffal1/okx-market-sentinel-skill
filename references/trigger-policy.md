@@ -161,7 +161,7 @@ Per watchlist item:
 ## Example trigger-aware brief
 
 ```text
-Market Sentinel | Trigger-aware scan
+Market Sentinel.skill | Trigger-aware scan
 
 Action state
 - action_state: escalate

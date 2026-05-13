@@ -3,7 +3,7 @@
 ## Example 1 — holdings-first brief
 
 ```text
-Market Sentinel | Scan complete
+Market Sentinel.skill | Scan complete
 
 Task type
 - holdings_review
@@ -47,7 +47,7 @@ Confidence
 ## Example 2 — full market sweep
 
 ```text
-Market Sentinel | Watchlist update
+Market Sentinel.skill | Watchlist update
 
 Task type
 - market_sweep
@@ -86,7 +86,7 @@ Confidence
 ## Example 3 — event-driven follow-up
 
 ```text
-Market Sentinel | Event follow-up
+Market Sentinel.skill | Event follow-up
 
 Task type
 - event_followup
@@ -123,7 +123,7 @@ Confidence
 ## Example 4 — weak-evidence case
 
 ```text
-Market Sentinel | Low-confidence scan
+Market Sentinel.skill | Low-confidence scan
 
 Task type
 - market_sweep
@@ -158,7 +158,7 @@ Confidence
 ## Example 5 — upstream handoff to a fuller trading agent
 
 ```text
-Market Sentinel | Upstream handoff
+Market Sentinel.skill | Upstream handoff
 
 Task type
 - holdings_review

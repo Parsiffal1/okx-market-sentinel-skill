@@ -225,7 +225,7 @@ That means the schema is a **semantic contract**, not a demand for raw JSON in e
 ## Example brief mapped to schema
 
 ```text
-Market Sentinel | Scan complete
+Market Sentinel.skill | Scan complete
 
 Task type
 - holdings_review

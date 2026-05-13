@@ -2,7 +2,7 @@
 
 <div align="center">
 
-# Market Sentinel Skill
+# Market Sentinel.skill
 
 > *Teach an agent to watch markets like an operator.*
 
@@ -31,7 +31,7 @@ npx skills add Parsiffal1/market-sentinel-skill
 ## Example output
 
 ```text
-Market Sentinel | Scan complete
+Market Sentinel.skill | Scan complete
 
 Market tone
 - market_tone: cautious
