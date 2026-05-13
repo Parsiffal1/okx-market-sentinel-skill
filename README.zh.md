@@ -28,6 +28,14 @@ npx skills add Parsiffal1/market-sentinel-skill
 
 ---
 
+<p align="center">
+  <img src="docs/assets/market-sentinel-hero.gif" alt="市场哨兵.skill hero animation" width="100%">
+</p>
+
+<p align="center"><sub>▲ 使用 <a href="https://github.com/alchaincyf/huashu-design/tree/master">huashu-design</a> 制作的 Hero 动画</sub></p>
+
+---
+
 ## 效果示例
 
 ```text

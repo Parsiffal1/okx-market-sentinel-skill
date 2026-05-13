@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Market Sentinel.skill Hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Source+Serif+4:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #06070a;
+    --bg2: #0c1017;
+    --panel: rgba(255,255,255,0.06);
+    --line: rgba(255,255,255,0.11);
+    --line-2: rgba(255,255,255,0.18);
+    --ink: rgba(255,255,255,0.96);
+    --muted: rgba(255,255,255,0.68);
+    --dim: rgba(255,255,255,0.40);
+    --amber: #F4B25E;
+    --amber2: #D98A32;
+    --green: #62D39A;
+    --blue: #88A8FF;
+    --red: #FF8E8E;
+    --shadow: 0 40px 120px rgba(0,0,0,0.38);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: #000;
+    overflow: hidden;
+    font-family: Inter, system-ui, sans-serif;
+    color: var(--ink);
+  }
+  .viewport {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(1200px 700px at 20% 20%, rgba(244,178,94,0.14), transparent 60%),
+      radial-gradient(1200px 700px at 80% 30%, rgba(136,168,255,0.11), transparent 60%),
+      linear-gradient(180deg, var(--bg2), var(--bg));
+  }
+  .stage {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background:
+      radial-gradient(900px 500px at 50% -10%, rgba(255,255,255,0.06), transparent 65%),
+      linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)),
+      linear-gradient(180deg, #0c1017, #06070a 56%);
+  }
+  .noise, .grid, .halo, .scene { position: absolute; inset: 0; }
+  .noise { opacity: 0.05; background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 22px 22px; }
+  .grid {
+    opacity: 0.06;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px);
+    background-size: 120px 120px;
+    mask-image: radial-gradient(circle at 50% 48%, black 28%, transparent 88%);
+  }
+  .halo {
+    background:
+      radial-gradient(520px 320px at 50% 46%, rgba(244,178,94,0.12), transparent 70%),
+      radial-gradient(420px 260px at 50% 55%, rgba(136,168,255,0.08), transparent 72%);
+  }
+  .scene { opacity: 0; transform: translateY(20px) scale(0.985); will-change: opacity, transform; }
+
+  .terminal-wrap {
+    position: absolute;
+    inset: 160px 200px auto 200px;
+    height: 380px;
+    display: grid;
+    place-items: center;
+  }
+  .terminal {
+    width: 1240px;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    overflow: hidden;
+    background: rgba(8,12,18,0.88);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+  }
+  .term-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,0.03);
+  }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .dot.r { background: #7e3f3f; }
+  .dot.y { background: #7e6b3f; }
+  .dot.g { background: #3f7e59; }
+  .term-title {
+    margin-left: 16px; font: 500 14px/1 JetBrains Mono, monospace; color: var(--dim); letter-spacing: .04em;
+  }
+  .term-body {
+    padding: 48px 44px 56px;
+    min-height: 250px;
+    font: 500 34px/1.55 JetBrains Mono, monospace;
+    color: rgba(255,255,255,0.90);
+    white-space: pre-wrap;
+  }
+  .prompt { color: var(--amber); }
+  .cursor {
+    display: inline-block; width: 14px; height: 34px; margin-left: 4px; transform: translateY(5px);
+    background: var(--amber); box-shadow: 0 0 18px rgba(244,178,94,0.5);
+  }
+  .term-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--line);
+    padding: 16px 24px;
+    color: var(--dim);
+    font-size: 14px;
+  }
+  .badge-row { display: flex; gap: 12px; }
+  .badge { padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; }
+
+  .cards-wrap {
+    position: absolute; inset: 125px 130px 110px 130px;
+  }
+  .card {
+    position: absolute;
+    width: 470px; min-height: 220px;
+    padding: 28px 30px 26px;
+    border-radius: 26px;
+    border: 1px solid var(--line-2);
+    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+    backdrop-filter: blur(18px);
+    box-shadow: var(--shadow);
+  }
+  .card .tag { font: 600 14px/1 Inter, sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+  .card h3 { margin: 18px 0 10px; font: 600 48px/1.05 Source Serif 4, serif; letter-spacing: -.03em; }
+  .card p { margin: 0; font-size: 24px; line-height: 1.45; color: var(--muted); }
+  .card ul { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+  .card li { font-size: 22px; color: rgba(255,255,255,0.88); display:flex; align-items:center; gap:12px; }
+  .pill { width: 10px; height: 10px; border-radius: 50%; }
+  .pill.green { background: var(--green); box-shadow: 0 0 16px rgba(98,211,154,.45); }
+  .pill.blue { background: var(--blue); box-shadow: 0 0 16px rgba(136,168,255,.45); }
+  .pill.red { background: var(--red); box-shadow: 0 0 16px rgba(255,142,142,.45); }
+  .card.a { left: 40px; top: 140px; }
+  .card.b { left: 725px; top: 60px; }
+  .card.c { right: 40px; top: 250px; }
+
+  .dashboard {
+    position: absolute; inset: 110px 140px 110px 140px;
+    display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px;
+  }
+  .panel {
+    border-radius: 26px; border: 1px solid var(--line);
+    background: rgba(255,255,255,0.05); box-shadow: var(--shadow); overflow: hidden;
+  }
+  .panel-head {
+    padding: 20px 24px; border-bottom: 1px solid var(--line); display:flex; align-items:center; justify-content:space-between;
+    font-size: 16px; color: var(--dim); letter-spacing: .12em; text-transform: uppercase;
+  }
+  .panel-body { padding: 22px 24px 24px; }
+  .market-tone {
+    display:flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px;
+  }
+  .market-tone h2 { margin:0; font: 600 56px/1 Source Serif 4, serif; letter-spacing:-.03em; }
+  .market-tone .state { font-size: 22px; color: var(--amber); }
+  .driver-list, .rank-list { display:grid; gap:14px; }
+  .driver-item, .rank-item {
+    display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:center;
+    padding: 16px 18px; border: 1px solid rgba(255,255,255,0.08); border-radius: 18px;
+    background: rgba(255,255,255,0.02);
+  }
+  .driver-num, .rank-num { width: 34px; height: 34px; border-radius: 50%; display:grid; place-items:center; font: 600 15px/1 Inter,sans-serif; background: rgba(244,178,94,0.13); color: var(--amber); }
+  .rank-item strong, .driver-item strong { font-size: 22px; }
+  .sub { font-size: 17px; color: var(--muted); margin-top: 4px; }
+  .grade { font-size: 15px; color: var(--dim); text-transform: uppercase; letter-spacing: .12em; }
+  .action-stack { display:grid; gap:18px; }
+  .action-box {
+    padding: 20px 22px; border-radius: 20px; border:1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);
+  }
+  .action-box .k { font-size: 14px; letter-spacing:.14em; color: var(--dim); text-transform: uppercase; }
+  .action-box .v { margin-top: 8px; font: 600 34px/1.06 Source Serif 4, serif; }
+  .action-box .s { margin-top: 12px; font-size: 18px; color: var(--muted); line-height: 1.5; }
+  .action-box.escalate .v { color: var(--amber); }
+  .action-box.observe .v { color: var(--blue); }
+  .action-box.handoff .v { color: var(--green); }
+
+  .final-wrap {
+    position: absolute; inset: 0; display:grid; place-items:center;
+  }
+  .final-card {
+    width: 1320px; padding: 74px 90px 70px;
+    border-radius: 34px; border: 1px solid var(--line-2);
+    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .final-kicker { font-size: 18px; letter-spacing: .2em; text-transform: uppercase; color: var(--dim); }
+  .final-title { margin: 22px 0 18px; font: 600 118px/0.95 Source Serif 4, serif; letter-spacing:-.05em; }
+  .final-title .accent { color: var(--amber); }
+  .final-sub {
+    width: 980px; margin: 0 auto; font-size: 30px; line-height: 1.45; color: var(--muted);
+  }
+  .final-row { margin-top: 30px; display:flex; justify-content:center; gap:14px; flex-wrap:wrap; }
+  .final-chip { padding: 12px 16px; border-radius: 999px; border:1px solid var(--line); color: rgba(255,255,255,.88); font-size:18px; }
+
+  .fade-line {
+    position: absolute; left: 50%; bottom: 110px; transform: translateX(-50%);
+    width: 420px; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent); opacity: .6;
+  }
+</style>
+</head>
+<body>
+<div class="viewport">
+  <div class="stage" id="stage">
+    <div class="noise"></div>
+    <div class="grid"></div>
+    <div class="halo"></div>
+
+    <section class="scene" id="scene1">
+      <div class="terminal-wrap">
+        <div class="terminal">
+          <div class="term-head">
+            <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+            <div class="term-title">markets / live review / operator brief</div>
+          </div>
+          <div class="term-body"><span class="prompt">❯</span><span id="typed"></span><span class="cursor" id="cursor"></span></div>
+          <div class="term-footer">
+            <div>holdings first · macro / crypto-native split · ranked watchlist</div>
+            <div class="badge-row"><div class="badge">observe</div><div class="badge">escalate</div><div class="badge">handoff</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" id="scene2">
+      <div class="cards-wrap">
+        <div class="card a" id="cardA">
+          <div class="tag">01 · Holdings First</div>
+          <h3>Review what you already hold.</h3>
+          <p>Start with live exposure before chasing fresh noise.</p>
+          <ul>
+            <li><span class="pill green"></span>Direct event exposure</li>
+            <li><span class="pill green"></span>Concentration risk</li>
+            <li><span class="pill green"></span>Which position deserves review first</li>
+          </ul>
+        </div>
+        <div class="card b" id="cardB">
+          <div class="tag">02 · Split the drivers</div>
+          <h3>Macro ≠ crypto-native.</h3>
+          <p>Separate what is broad repricing from what is venue, stablecoin, or protocol stress.</p>
+          <ul>
+            <li><span class="pill blue"></span>Rates / liquidity / risk appetite</li>
+            <li><span class="pill blue"></span>Exchange / stablecoin / security events</li>
+          </ul>
+        </div>
+        <div class="card c" id="cardC">
+          <div class="tag">03 · Decide the action</div>
+          <h3>Observe. Escalate. Handoff.</h3>
+          <p>Not every move deserves the same response.</p>
+          <ul>
+            <li><span class="pill red"></span>Heat without structure → observe</li>
+            <li><span class="pill red"></span>Confirmed pressure on holdings → escalate</li>
+            <li><span class="pill red"></span>Operational urgency → handoff now</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" id="scene3">
+      <div class="dashboard">
+        <div class="panel">
+          <div class="panel-head"><span>Market Review</span><span>current session</span></div>
+          <div class="panel-body">
+            <div class="market-tone">
+              <h2>Cautious, not chaotic.</h2>
+              <div class="state">macro-led pressure · selective escalation</div>
+            </div>
+            <div class="driver-list">
+              <div class="driver-item"><div class="driver-num">1</div><div><strong>BTC / ETH under review</strong><div class="sub">Cross-asset weakness plus event clustering hit current exposure first.</div></div><div class="grade">highest</div></div>
+              <div class="driver-item"><div class="driver-num">2</div><div><strong>SOL worth watching</strong><div class="sub">Strong structural confirmation, but still secondary to held majors.</div></div><div class="grade">watch</div></div>
+              <div class="driver-item"><div class="driver-num">3</div><div><strong>DOGE stays low-conviction</strong><div class="sub">Heat is visible. Confirmation is not.</div></div><div class="grade">weak</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><span>Action States</span><span>what next</span></div>
+          <div class="panel-body action-stack">
+            <div class="action-box observe">
+              <div class="k">Observe</div>
+              <div class="v">Noise stays on watch.</div>
+              <div class="s">Attention-only names do not outrank real holdings pressure.</div>
+            </div>
+            <div class="action-box escalate">
+              <div class="k">Escalate</div>
+              <div class="v">Held risk gets reviewed now.</div>
+              <div class="s">Current positions move ahead of new ideas when confirmation is real.</div>
+            </div>
+            <div class="action-box handoff">
+              <div class="k">Handoff</div>
+              <div class="v">Only when timing matters.</div>
+              <div class="s">Use the judgment layer first. Push into larger systems only when needed.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" id="scene4">
+      <div class="final-wrap">
+        <div class="final-card">
+          <div class="final-kicker">for traders first</div>
+          <div class="final-title">Market <span class="accent">Sentinel</span>.skill</div>
+          <div class="final-sub">A market-monitoring and judgment skill that helps traders review holdings first, separate real drivers from noise, rank what matters now, and write a brief they can actually use.</div>
+          <div class="final-row">
+            <div class="final-chip">holdings first</div>
+            <div class="final-chip">macro / crypto-native split</div>
+            <div class="final-chip">ranked watchlist</div>
+            <div class="final-chip">observe / escalate / handoff</div>
+          </div>
+        </div>
+        <div class="fade-line"></div>
+      </div>
+    </section>
+  </div>
+</div>
+<script>
+  const DURATION = 14;
+  const stage = document.getElementById('stage');
+  const scenes = ['scene1','scene2','scene3','scene4'].map(id => document.getElementById(id));
+  const typed = document.getElementById('typed');
+  const cursor = document.getElementById('cursor');
+  const command = 'run market sentinel · review holdings first';
+  const recording = window.__recording === true;
+  let start = null;
+  let t = 0;
+  let raf = null;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const easeOutCubic = x => 1 - Math.pow(1 - x, 3);
+  const easeInOut = x => x < 0.5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3)/2;
+
+  function fit() {
+    const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+    stage.style.left = '50%';
+    stage.style.top = '50%';
+    stage.style.position = 'absolute';
+  }
+
+  function showScene(index, opacity, y=0, scale=1) {
+    const el = scenes[index];
+    el.style.opacity = opacity;
+    el.style.visibility = opacity > 0.001 ? 'visible' : 'hidden';
+    el.style.transform = `translateY(${y}px) scale(${scale})`;
+  }
+
+  function segmentProgress(now, from, to) {
+    return clamp((now - from) / (to - from), 0, 1);
+  }
+
+  function render(now) {
+    t = now;
+
+    scenes.forEach((_, i) => showScene(i, 0, 24, 0.985));
+
+    const s1In = easeOutCubic(segmentProgress(t, 0.0, 0.9));
+    const s1Out = segmentProgress(t, 3.8, 4.5);
+    showScene(0, s1In * (1 - s1Out), lerp(30, -10, s1In) + lerp(0, -20, s1Out), lerp(0.985, 1, s1In));
+
+    const typeP = segmentProgress(t, 0.5, 2.35);
+    typed.textContent = command.slice(0, Math.floor(command.length * easeOutCubic(typeP)));
+    cursor.style.opacity = t < 2.55 ? '1' : '0';
+
+    const s2In = easeOutCubic(segmentProgress(t, 4.0, 4.9));
+    const s2Out = segmentProgress(t, 8.0, 8.7);
+    showScene(1, s2In * (1 - s2Out), lerp(34, -8, s2In) + lerp(0, -20, s2Out), lerp(0.98, 1, s2In));
+
+    const cards = [
+      [document.getElementById('cardA'), 0],
+      [document.getElementById('cardB'), .12],
+      [document.getElementById('cardC'), .24],
+    ];
+    cards.forEach(([el, delay], idx) => {
+      const p = easeOutCubic(segmentProgress(t, 4.08 + delay, 5.05 + delay));
+      const out = segmentProgress(t, 7.9, 8.5);
+      const xStart = idx === 0 ? -120 : idx === 1 ? 0 : 120;
+      const rotStart = idx === 0 ? -7 : idx === 1 ? -1 : 7;
+      el.style.opacity = String(p * (1 - out));
+      el.style.transform = `translate(${lerp(xStart,0,p)}px, ${lerp(40,0,p) + out * -18}px) rotate(${lerp(rotStart,0,p)}deg) scale(${lerp(0.96,1,p)})`;
+    });
+
+    const s3In = easeOutCubic(segmentProgress(t, 8.2, 9.15));
+    const s3Out = segmentProgress(t, 11.65, 12.3);
+    showScene(2, s3In * (1 - s3Out), lerp(30, -8, s3In) + lerp(0, -18, s3Out), lerp(0.985, 1, s3In));
+
+    const s4In = easeOutCubic(segmentProgress(t, 11.8, 12.75));
+    showScene(3, s4In, lerp(24, 0, s4In), lerp(0.985, 1, s4In));
+
+    if (recording && t >= DURATION) {
+      t = DURATION;
+      cancelAnimationFrame(raf);
+      return;
+    }
+    if (!recording && t >= DURATION) {
+      start = performance.now();
+    }
+  }
+
+  function tick(ts) {
+    if (start == null) start = ts;
+    render((ts - start) / 1000);
+    raf = requestAnimationFrame(tick);
+  }
+
+  window.__seek = function(sec) {
+    start = performance.now() - sec * 1000;
+    render(sec);
+  };
+
+  fit();
+  addEventListener('resize', fit);
+  document.fonts.ready.then(() => requestAnimationFrame(() => {
+    window.__ready = true;
+    requestAnimationFrame(tick);
+  }));
+</script>
+</body>
+</html>
