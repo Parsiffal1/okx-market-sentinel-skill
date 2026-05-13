@@ -237,8 +237,6 @@ Read the escalation rules in [`references/trigger-policy.md`](references/trigger
 npx skills add Parsiffal1/market-sentinel-skill
 ```
 
-Or place the repository in your local skill directory if your runtime prefers local skills.
-
 ### Runtime assumptions
 
 This skill assumes the agent can use some combination of:

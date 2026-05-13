@@ -236,8 +236,6 @@ agent 需要分清：
 npx skills add Parsiffal1/market-sentinel-skill
 ```
 
-如果你的 runtime 更喜欢本地 skill 目录，也可以直接把仓库放进去。
-
 ### 运行前提
 
 这个 skill 默认假设 agent 至少具备以下一部分能力：
