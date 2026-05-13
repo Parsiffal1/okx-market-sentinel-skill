@@ -1,311 +1,293 @@
 [English](README.md) | [中文](README.zh.md)
 
+<div align="center">
+
 # OKX Market Sentinel Skill
 
-A production-oriented **OKX-first market monitoring and risk-sentinel skill repository** that combines a reusable agent skill package with a runnable Python reference implementation.
+**An OKX-first, API-provider-agnostic market monitoring skill for agents that need to search, synthesize, rank, and report.**
 
-## Project Overview
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Agent Skill](https://img.shields.io/badge/Agent%20Skill-Compatible-blueviolet)](https://skills.sh)
+[![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-green)](https://skills.sh)
 
-OKX Market Sentinel is built for one job: **continuously turn scattered market, holdings, news, and social signals into a readable monitoring view that an operator or agent can act on**.
+```bash
+npx skills add Parsiffal1/okx-market-sentinel-skill
+```
 
-It is designed for teams or individuals who want more than a script that fetches one API endpoint, but less than a full auto-trading system. The repository focuses on:
+</div>
 
-- multi-source market context collection
-- holdings-first risk inspection
-- hot tradeable symbol ranking across OKX contract-tradable instruments
-- Telegram-friendly reporting
-- agent-skill packaging for Hermes and OpenClaw
+---
 
-This repository **does not** execute trades, place orders, promise returns, or provide investment advice. If you connect a real OKX account, use **read-only** credentials only.
+## What this skill is
 
-## What problem this project solves
+OKX Market Sentinel is a **market-monitoring skill**, not a trading bot and not a dashboard product.
 
-Most market-monitoring prototypes stop at raw data collection. They fetch prices or headlines, but they do not answer the operational questions that matter:
+Its job is simple:
 
-- *Do my current holdings need attention right now?*
-- *Is today’s risk coming from macro headlines, crypto-native incidents, or exchange positioning?*
-- *Which OKX-tradable symbols are actually worth watching next?*
-- *How do I package the result into a message an operator can read in seconds?*
+> help an agent turn scattered market information into a holdings-aware risk view, a watchlist, and a readable summary.
 
-OKX Market Sentinel addresses that gap by building a structured Phase3 pipeline that aggregates source data into unified artifacts, then derives notifier-ready summaries, trigger candidates, and dashboard payloads.
+The skill is designed for workflows like:
 
-## What the output looks like
+- monitoring current holdings before they become a problem
+- ranking which OKX-tradable symbols are worth attention now
+- separating macro risk from crypto-native risk
+- turning multi-source market noise into concise operator-facing output
+- producing a brief that can be sent to chat, notes, or another agent step
 
-A typical user-facing summary looks like this:
+This repository is now intentionally **skill-first**. It does not ship a heavy reference implementation, local dashboard, or fixed provider stack.
+
+---
+
+## What this skill is not
+
+This skill does **not**:
+
+- place trades
+- manage orders
+- promise profits
+- require one specific API vendor
+- depend on one hard-coded news, macro, or social provider
+
+If an agent can access market data, search the web, inspect holdings, and read current event sources, the skill can be used.
+
+---
+
+## Core idea
+
+Most market-monitoring setups fail in one of two ways:
+
+1. they are too raw — lots of prices, headlines, and alerts, but no operational judgment
+2. they are too narrow — they depend on one exchange view, one news feed, or one sentiment source
+
+OKX Market Sentinel solves that by giving the agent a reusable workflow:
+
+1. gather market structure information
+2. gather macro and crypto-native events
+3. check current holdings first
+4. score what matters now
+5. output the result in a compact, explainable format
+
+The important thing is that the skill is **information-oriented, not provider-oriented**.
+
+---
+
+## What information the agent should collect
+
+The skill cares about **information categories**, not vendor names.
+
+### 1. Market structure
+- price change
+- volume / turnover
+- open interest or contract activity if available
+- unusual volatility or relative strength
+- top movers among OKX-tradable instruments
+
+### 2. Holdings and exposure
+- current positions or watchlist
+- exposure concentration
+- position-specific event risk
+- which names deserve priority review right now
+
+### 3. Macro context
+- rates, inflation, labor, liquidity, policy shifts
+- cross-asset risk appetite
+- major geopolitical shocks that can reprice crypto and leveraged instruments
+
+### 4. Crypto-native context
+- exchange incidents
+- stablecoin stress
+- security events
+- token / protocol-specific blowups
+- narrative rotation between sectors
+
+### 5. Social and attention signals
+- discussion heat
+- sudden narrative acceleration
+- unusual concentration of attention on a small set of symbols
+
+The agent may obtain these from web search, exchange interfaces, data APIs, internal tools, databases, MCP servers, or human-provided notes.
+
+---
+
+## What the skill outputs
+
+A good run should usually produce some combination of the following:
+
+### A. Risk summary
+- current market tone
+- what changed since the last scan
+- whether risk is rising, stable, or mixed
+
+### B. Holdings-first review
+- which current holdings need immediate attention
+- what event or market behavior is driving that concern
+- whether the issue looks systemic, isolated, or uncertain
+
+### C. Hot-symbol shortlist
+- the most relevant OKX-tradable names to monitor now
+- why they appear on the list
+- which signals support the ranking
+
+### D. Operator brief
+A short output suitable for chat or notes, for example:
 
 ```text
 OKX Market Sentinel | Scan complete
-• Status: healthy
-• Priority holdings: BTC, ETH
-• Market bias: bearish
-• Risk level: high
-• Escalate to deeper analysis: yes
-• Watch-only triggers: macro event window, holdings pressure
 
-Risk trigger summary
-Macro risk confluence     : triggered
-Holdings security issue   : none
-Holdings event cluster    : triggered
-Escalate to deeper review : yes
-Watch-only triggers       : macro event window, holdings pressure
+Market tone
+- Bias: cautious
+- Escalation: yes
+- Main driver: macro event window + crypto-native stress
 
-Symbols worth watching
-• Current shortlist: BTC, ETH, SOL, DOGE
-• From existing holdings: BTC, ETH
-• From social momentum: SOL, DOGE
-• From OKX OI changes: ETH, SOL
+Priority holdings
+1. BTC — risk elevated due to cross-asset weakness and event clustering
+2. ETH — watch for derivatives pressure and sector spillover
 
-Holdings at risk
-1. BTC | risk=high | events=2 | heat=18 | drivers=macro event window, holdings event cluster
-2. ETH | risk=medium | events=1 | heat=11 | drivers=open-interest change
+Symbols worth monitoring
+1. SOL — rising heat + strong contract activity
+2. DOGE — attention surge without equally strong structural confirmation
 
-Top tradeable symbols
-1. SOL | score=82 | source=social momentum + OKX OI changes | why=high social heat; leading open-interest move
-2. DOGE | score=71 | source=social momentum | why=multi-account consensus
+Confidence notes
+- Macro signal strength: high
+- Crypto-native event confirmation: medium
+- Social signal reliability: mixed
 ```
 
-## Dashboard Preview
+---
 
-If you want to see the product before reading the code, start here:
+## Typical prompts
 
-<img width="1706" height="1615" alt="image" src="https://github.com/user-attachments/assets/b9c97330-347c-4b0a-978f-e8ac0928d175" />
-<img width="1405" height="1977" alt="image" src="https://github.com/user-attachments/assets/d4b76e8b-f477-4d26-b7de-53c2b02def1c" />
-<img width="1395" height="2429" alt="image" src="https://github.com/user-attachments/assets/39340d67-a92d-4965-98ea-b4862aa295e5" />
+### General market scan
+- `Run an OKX market sentinel pass and give me a concise risk summary.`
+- `Look across OKX-tradable contracts and tell me what deserves attention right now.`
 
+### Holdings-first scan
+- `Reassess my current holdings first, then rank what else is worth monitoring.`
+- `Given these holdings, tell me which positions face the highest immediate risk and why.`
 
+### Event-driven scan
+- `Use current macro and crypto-native developments to tell me whether this is a risk-on or risk-off window for OKX contracts.`
+- `Search for the main drivers behind today’s strongest moves and separate noise from real risk.`
 
-## Core Features
+### Reporting
+- `Turn this scan into a Telegram-style brief.`
+- `Give me a watchlist plus evidence, with uncertainty clearly marked.`
 
-- [x] **Phase3 pipeline** for source collection, context aggregation, and trigger generation
-- [x] **Holdings-first risk view** that checks current exposure before surfacing new opportunities
-- [x] **OKX-first hot-symbol ranking** across contract-tradable instruments, not just spot crypto coins
-- [x] **Macro + crypto-native event aggregation** so exchange incidents and market structure shifts are not lost inside generic news flow
-- [x] **Telegram notifier flow** for concise operational briefs
-- [x] **Local dashboard** for inspecting market state, trigger state, and ranking outputs
-- [x] **Reusable skill package** under `skills/crypto-market-sentinel/` for Hermes / OpenClaw style agent runtimes
-- [x] **Semantic Compass maintenance flow** for updating the phrase packs that drive risk extraction and event tagging
+More examples live in [`examples/prompts.md`](examples/prompts.md).
 
-## Tech Stack
+---
 
-- **Language:** Python 3.10+
-- **Project shape:** runnable reference implementation + reusable agent skill package
-- **Agent integration:** Hermes and OpenClaw compatible skill-directory layout
-- **Decision style:** artifact-first, rules-first monitoring with optional agent-assisted semantic maintenance
-- **Core libraries:** `requests`, `PyYAML`, `mcp`
-- **Quality tooling:** `pytest`, `ruff`
-- **External systems / APIs:** OKX data interfaces, Telegram Bot API, Jin10 MCP, crypto-news and social-source integrations configured by environment variables
+## How the skill should think
 
-## Compatibility
+### Principle 1 — holdings before ideas
+If the user already has positions, those positions get priority over new opportunities.
 
-This repository is designed to be usable in two ways:
+### Principle 2 — information beats source branding
+The skill should not care whether a macro headline came from one provider or another. It should care whether the information is timely, specific, and cross-checkable.
 
-1. **As a runnable Python project** for local monitoring, dashboard serving, and notifier execution
-2. **As a skill repository** for agent runtimes such as **Hermes** and **OpenClaw**
+### Principle 3 — event importance is not the same as social popularity
+A widely discussed topic can still be weak evidence. A low-volume but high-impact operational event can matter much more.
 
-The reusable skill package lives under:
+### Principle 4 — explain the driver, not just the label
+Do not say only `risk high`. Say what is actually driving the risk: macro repricing, exchange stress, open-interest shift, security shock, or uncertain social heat.
+
+### Principle 5 — mark uncertainty honestly
+If evidence is partial, conflicting, stale, or weak, the output should say so.
+
+---
+
+## Skill workflow
+
+A strong execution usually looks like this:
+
+1. confirm scope
+   - holdings? watchlist? full market? one sector?
+2. collect current market structure data
+3. collect macro and crypto-native events
+4. collect supporting discussion / attention signals if useful
+5. compare signal quality across categories
+6. identify the few items that actually matter
+7. produce a readable summary with evidence and uncertainty notes
+
+A more detailed version is in [`references/market-monitoring-playbook.md`](references/market-monitoring-playbook.md).
+
+---
+
+## Source grounding expectations
+
+The skill should prefer:
+
+- current information over stale information
+- multiple confirming signals over one isolated signal
+- directly relevant evidence over generic commentary
+- exchange / market / event evidence over vague sentiment summaries
+
+The agent should avoid:
+
+- over-trusting one provider
+- presenting unsupported causal claims as facts
+- confusing correlated noise with a real trigger
+- treating old summaries as if they were live market evidence
+
+Detailed grounding rules are in [`references/source-grounding-rules.md`](references/source-grounding-rules.md).
+
+---
+
+## File layout
 
 ```text
-skills/crypto-market-sentinel/
+README.md
+README.zh.md
+SKILL.md
+references/
+examples/
+templates/
 ```
 
-## Quick Start
+- `SKILL.md` is the main runtime contract
+- `references/` explains the information model and decision rules
+- `examples/` shows prompts, outputs, and use cases
+- `templates/` gives reusable output formats
 
-### Environment Requirements
+---
 
-- Python 3.10+
-- Network access for the data sources you plan to use
-- Optional: OKX read-only credentials
-- Optional: Telegram bot credentials
-- Optional: Hermes / OpenClaw if you want to load the packaged skill directly
+## Installation and usage
 
-### Installation
-
-Install dependencies:
+### Install as a skill
 
 ```bash
-pip install -r requirements.txt
+npx skills add Parsiffal1/okx-market-sentinel-skill
 ```
 
-### Configure API Keys
+Or copy the repository into your agent skill directory if your runtime expects local skills.
 
-Create a local environment file:
+### Runtime assumptions
 
-```bash
-cp .env.example .env
-```
+This skill assumes the agent can use some combination of:
 
-Then edit `.env` and fill in only the keys you actually need. The current pipeline usually expects **local OKX CLI/profile access** for exchange data, while these environment variables are used for notifier delivery and optional upstream integrations:
+- web search
+- browser or document reading tools
+- market-data tools or APIs
+- holdings / account state inputs
+- messaging or reporting output tools
 
-```dotenv
-# OKX (keep read-only credentials if your local setup needs them)
-OKX_API_KEY=
-OKX_API_SECRET=
-OKX_PASSPHRASE=
-OKX_IS_PAPER_TRADING=true
+It does **not** require one canonical provider stack.
 
-# Telegram notifier
-TELEGRAM_BOT_TOKEN=
-PHASE3_NOTIFY_TELEGRAM_BOT_TOKEN=
-PHASE3_NOTIFY_TELEGRAM_CHAT_ID=
+---
 
-# Optional upstreams
-OPENNEWS_TOKEN=
-TWITTER_TOKEN=
-OPEN_TOKEN=
-BLOCKBEATS_API_KEY=
-JIN10_MCP_TOKEN=
-CMC_API_KEY=
-```
+## Safety boundary
 
-### Run the Project
+This skill helps with monitoring and interpretation.
+It does **not** replace human judgment, execution controls, or risk management policy.
 
-Run the canonical Phase3 pipeline:
+Use read-only credentials when connecting real exchange data.
+Never interpret the output as guaranteed profit or personalized investment advice.
 
-```bash
-python scripts/phase3_pipeline.py
-```
+---
 
-Start the local dashboard:
+## Read next
 
-```bash
-python dashboard/server.py --host 127.0.0.1 --port 8765
-```
-
-Then open:
-
-```text
-http://127.0.0.1:8765
-```
-
-Send a Telegram-style monitoring summary:
-
-```bash
-python scripts/run_phase3_notifier.py
-```
-
-Set `PHASE3_NOTIFY_TELEGRAM_CHAT_ID` for notifier delivery. `PHASE3_NOTIFY_TELEGRAM_BOT_TOKEN` can override `TELEGRAM_BOT_TOKEN` when you want a dedicated notifier bot.
-
-Refresh the Semantic Compass phrase pack with an agent-assisted brief:
-
-```bash
-python scripts/refresh_semantic_compass.py --brief "Add phrases for Strait of Hormuz closure / reopening / exchange outage / stablecoin depeg"
-```
-
-### Install the Skill Only
-
-If you only want the reusable skill package, copy it into your agent skill directory.
-
-For Hermes:
-
-```bash
-mkdir -p ~/.hermes/skills/market-monitoring && cp -r skills/crypto-market-sentinel ~/.hermes/skills/market-monitoring/
-```
-
-For OpenClaw:
-
-```bash
-mkdir -p ~/.agents/skills/market-monitoring && cp -r skills/crypto-market-sentinel ~/.agents/skills/market-monitoring/
-```
-
-## Usage Example
-
-### 1. Build artifacts
-
-```bash
-python scripts/phase3_pipeline.py
-```
-
-Typical outputs:
-
-```text
-context/context_cache.json
-context/trigger_candidates.json
-reports/phase3_report_*.md
-```
-
-### 2. Run the notifier
-
-```bash
-python scripts/run_phase3_notifier.py
-```
-
-### 3. Run tests
-
-```bash
-pytest -q
-```
-
-## Repository Structure
-
-```text
-.
-├── config/                              # risk rules and semantic configuration
-├── dashboard/                           # local dashboard server and static frontend
-├── docs/                                # architecture, workflow, schema, and handoff docs
-├── scripts/                             # Phase3 pipeline, notifier, and source fetchers
-├── skills/crypto-market-sentinel/       # reusable skill package
-├── tests/                               # regression and packaging tests
-├── .env.example                         # local environment template
-├── requirements.txt                     # runtime + dev dependencies for quick setup
-├── README.md                            # English repository guide
-└── README.zh.md                         # Chinese repository guide
-```
-
-## Which file should I read first?
-
-- **I want the full runnable system** → start with `README.md`, then `scripts/phase3_pipeline.py`
-- **I only want the reusable skill** → start with `skills/crypto-market-sentinel/README.md`
-- **I want the architecture** → read `docs/phase3-overview.md` and `skills/crypto-market-sentinel/references/architecture.md`
-- **I want common operator commands** → read `skills/crypto-market-sentinel/references/runtime-commands.md`
-- **I want to inspect the dashboard entrypoint** → read `dashboard/server.py`
-
-## Project Highlights
-
-- **Hybrid delivery model:** not just docs, not just scripts — a real repository that can be run locally and packaged as a skill
-- **Operationally readable output:** the system is optimized for short dashboards and Telegram briefs rather than raw JSON dumps alone
-- **Scope discipline:** focuses on monitoring, risk surfacing, and watchlist generation without pretending to be an execution engine
-- **OKX-native ranking logic:** hot-symbol discovery is grounded in OKX tradable instruments and exchange-native positioning changes
-- **Agent-maintainable semantics:** the phrase-pack workflow makes semantic risk extraction maintainable over time
-
-## Dependencies
-
-Required or commonly used dependencies include:
-
-- `python`
-- `requests`
-- `PyYAML`
-- `mcp`
-- `pytest`
-- `ruff`
-- `okx` CLI (optional, depending on your local integration path)
-- `hermes` CLI (optional, for agent-assisted semantic refresh and runtime workflows)
-- Telegram Bot API credentials (optional, for notifier delivery)
-
-## Project Status and Scope
-
-This repository currently centers on the **Phase3 sentinel pipeline** as the canonical product line:
-
-- multi-source fetchers
-- unified context cache
-- trigger candidate generation
-- dashboard reporting
-- Telegram notifier output
-- skill packaging for agent reuse
-
-It intentionally excludes automated order execution.
-
-## Security
-
-- Never commit real API keys, bot tokens, or account secrets
-- Use `.env` only for local development
-- Prefer read-only OKX credentials
-- Do not bind the dashboard to a public interface unless you add your own authentication and network controls
-- Read `SECURITY.md` before public deployment
-
-## Community
-
-Issues and pull requests are welcome for documentation, testing, packaging, and monitoring improvements. For sensitive disclosures, follow `SECURITY.md`.
-
-## License
-
-MIT License
+- [`SKILL.md`](SKILL.md)
+- [`references/information-model.md`](references/information-model.md)
+- [`references/api-agnostic-data-requirements.md`](references/api-agnostic-data-requirements.md)
+- [`examples/outputs.md`](examples/outputs.md)

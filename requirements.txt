@@ -1,5 +1,0 @@
-requests
-PyYAML
-mcp
-pytest
-ruff
