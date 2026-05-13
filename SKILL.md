@@ -1,8 +1,8 @@
 ---
-name: okx-market-sentinel
+name: market-sentinel
 description: |
-  OKX 市场哨兵：当用户想做市场扫描、持仓优先复查、热点标的排序、事件驱动解释、Telegram 风格简报、风险摘要或 watchlist 更新时使用。
-  这个 skill 教 agent 用“信息分层 → 持仓优先 → 风险归因 → 结果排序 → 简洁输出”的方法处理 OKX 可交易市场。
+  市场哨兵：当用户想做市场扫描、持仓优先复查、热点标的排序、事件驱动解释、Telegram 风格简报、风险摘要或 watchlist 更新时使用。
+  这个 skill 教 agent 用“信息分层 → 持仓优先 → 风险归因 → 结果排序 → 简洁输出”的方法处理任何可交易市场。
   它是 API provider 无关的：关注信息质量、时效性、相关性和可验证性，不绑定固定供应商。
 version: "1.1.0"
 user-invocable: true
@@ -14,7 +14,7 @@ license: MIT
 metadata: {"openclaw": {"emoji": "📡", "tags": ["okx", "market-monitoring", "risk-sentinel", "crypto", "holdings-review", "watchlist"], "requires": {"optionalEnv": ["TIMEZONE", "DEFAULT_WATCHLIST", "DEFAULT_OUTPUT_STYLE", "DEFAULT_REPORT_CHANNEL"]}}, "hermes": {"requires_toolsets": ["web", "browser", "terminal", "file"]}}
 ---
 
-# OKX Market Sentinel
+# Market Sentinel
 
 > 把 agent 训练成一个真正会看盘、会排优先级、会写简报的市场哨兵。
 
@@ -39,8 +39,8 @@ metadata: {"openclaw": {"emoji": "📡", "tags": ["okx", "market-monitoring", "r
 当用户在问下面这类问题时，就应该优先考虑加载这个 skill：
 
 ### A. 市场扫描
-- `现在 OKX 市场最值得关注的东西是什么？`
-- `扫一遍 OKX 可交易标的，告诉我什么最重要。`
+- `现在市场里最值得关注的东西是什么？`
+- `扫一遍市场，告诉我什么最重要。`
 - `给我一版当前市场状态摘要。`
 
 ### B. 持仓优先复查
@@ -96,7 +96,7 @@ metadata: {"openclaw": {"emoji": "📡", "tags": ["okx", "market-monitoring", "r
 - 持仓量 / 合约活跃度（如果可得）
 - 异常波动
 - 相对强弱
-- 哪些 OKX 可交易标的真的在动
+- 哪些标的真的在动
 
 ### 2. 持仓与敞口层
 重点看：

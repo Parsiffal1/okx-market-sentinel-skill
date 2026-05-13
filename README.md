@@ -2,9 +2,9 @@
 
 <div align="center">
 
-# OKX Market Sentinel Skill
+# Market Sentinel Skill
 
-**Teach an agent to watch OKX-tradable markets like an operator: search the live web, inspect holdings first, separate real risk from noise, and write a brief people can actually use.**
+**Teach an agent to watch live markets like an operator: search the web, inspect holdings first, separate real risk from noise, and write a brief people can actually use.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Agent Skill](https://img.shields.io/badge/Agent%20Skill-Compatible-blueviolet)](https://skills.sh)
@@ -27,10 +27,10 @@ But they usually fail at the part that matters:
 
 - *Which current holdings deserve attention first?*
 - *Is this move macro-driven, crypto-native, or mostly noise?*
-- *Which OKX-tradable names are worth watching right now?*
+- *Which names are worth watching right now?*
 - *How do I turn all of that into a brief another operator or agent can read in seconds?*
 
-**OKX Market Sentinel exists to make that judgment layer reusable.**
+**Market Sentinel exists to make that judgment layer reusable.**
 
 It gives an agent a repeatable way to:
 - collect live market evidence
@@ -61,7 +61,7 @@ The skill should identify:
 - what looks scary but is still weakly confirmed
 
 ### 3. A hot-symbol shortlist
-A ranking of OKX-tradable names worth monitoring now, with reasons.
+A ranking of names worth monitoring now, with reasons.
 
 ### 4. A readable operator brief
 The final output should feel like a useful working note, not a raw dump.
@@ -80,7 +80,7 @@ It defines the workflow by **information categories**.
 - open interest or contract activity if available
 - unusual volatility
 - relative strength / weakness
-- which OKX-tradable instruments are actually active
+- which instruments are actually active
 
 ### Holdings and exposure
 - current positions or watchlist
@@ -151,12 +151,12 @@ A fuller operational version lives in [`references/market-monitoring-playbook.md
 ## Typical prompts
 
 ### Holdings-first
-- `Run an OKX market sentinel pass. Review my holdings first, then tell me what else deserves attention.`
+- `Run a market sentinel pass. Review my holdings first, then tell me what else deserves attention.`
 - `Reassess these positions using current market, macro, and crypto-native information.`
 
 ### Full market scan
-- `Scan OKX-tradable markets and rank the symbols worth watching now.`
-- `Give me a compact OKX market sentinel summary for the current session.`
+- `Scan the market and rank the symbols worth watching now.`
+- `Give me a compact market sentinel summary for the current session.`
 
 ### Event-driven follow-up
 - `Search the strongest current drivers behind today's move and separate real risk from noise.`
@@ -173,7 +173,7 @@ More examples live in [`examples/prompts.md`](examples/prompts.md).
 ## Example output
 
 ```text
-OKX Market Sentinel | Scan complete
+Market Sentinel | Scan complete
 
 Market tone
 - Bias: cautious

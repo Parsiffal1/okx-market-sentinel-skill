@@ -3,7 +3,7 @@
 ## Example 1 — holdings-first brief
 
 ```text
-OKX Market Sentinel | Scan complete
+Market Sentinel | Scan complete
 
 Market tone
 - Bias: cautious
@@ -36,7 +36,7 @@ Confidence notes
 ## Example 2 — full market sweep
 
 ```text
-OKX Market Sentinel | Watchlist update
+Market Sentinel | Watchlist update
 
 Market tone
 - Bias: mixed-to-cautious
@@ -68,7 +68,7 @@ Confidence notes
 ## Example 3 — event-driven follow-up
 
 ```text
-OKX Market Sentinel | Event follow-up
+Market Sentinel | Event follow-up
 
 Classification
 - Regime: mixed
@@ -98,7 +98,7 @@ Uncertainty
 ## Example 4 — weak-evidence case
 
 ```text
-OKX Market Sentinel | Low-confidence scan
+Market Sentinel | Low-confidence scan
 
 Market tone
 - Bias: unclear

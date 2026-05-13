@@ -15,7 +15,7 @@ For each prompt below, a good answer should be:
 
 ### Prompt A1
 ```text
-Run an OKX market sentinel pass. Review my holdings first, then tell me what else deserves attention.
+Run a market sentinel pass. Review my holdings first, then tell me what else deserves attention.
 Holdings: BTC, ETH, SOL.
 Output style: short operator brief.
 ```
@@ -44,7 +44,7 @@ Tell me which position is most fragile right now and why.
 
 ### Prompt B1
 ```text
-Scan OKX-tradable markets and rank the symbols worth watching now.
+Scan the market and rank the symbols worth watching now.
 Keep the answer under 12 bullets.
 ```
 

@@ -10,7 +10,7 @@ Use this when the user wants a compact, high-signal message.
 - If holdings exist, list them before new watchlist names.
 
 ```text
-OKX Market Sentinel | Scan complete
+Market Sentinel | Scan complete
 
 Market tone
 - Bias:
